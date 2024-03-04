@@ -118,17 +118,13 @@ class Acquisition(Activity):
         return self.technique
     
 class Processing(Activity):
-    def __init__(self, institute, culturalHeritageObject, person=None, tool=set(), start=None, end=None):
-        super().__init__(institute, culturalHeritageObject, person=None, tool=set(), start=None, end=None)
+    pass
 
 class Modelling(Activity):
-    def __init__(self, institute, culturalHeritageObject, person=None, tool=set(), start=None, end=None):
-        super().__init__(institute, culturalHeritageObject, person=None, tool=set(), start=None, end=None)
+    pass
 
 class Optimising(Activity):
-    def __init__(self, institute, culturalHeritageObject, person=None, tool=set(), start=None, end=None):
-        super().__init__(institute, culturalHeritageObject, person=None, tool=set(), start=None, end=None)
+    pass
 
 class Exporting(Activity):
-    def __init__(self, institute, culturalHeritageObject, person=None, tool=set(), start=None, end=None):
-        super().__init__(institute, culturalHeritageObject, person=None, tool=set(), start=None, end=None)
+    pass

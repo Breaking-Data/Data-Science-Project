@@ -24,7 +24,7 @@ class UploadHandler(Handler):
     def pushDataToDb(self):
         pass
 
-class ProcessDataUploadHandler ( UploadHandler):
+class ProcessDataUploadHandler(UploadHandler):
     def __init__(self):
         super().__init__()
 

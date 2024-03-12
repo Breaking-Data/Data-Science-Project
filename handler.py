@@ -76,7 +76,7 @@ class ProcessDataUploadHandler(UploadHandler):
                     # the object id row can be removed if not needed (just delite this line) 
                     table["object id"] = j_df[j_df.columns[0]]
 
-            with connect(rel_path) as con:
+            with connect(self.dbPathOrUrl) as con:
                 for table_name, table in table_dict.items():
                     data_type_dict = {}
                     for column in table.columns.to_list():

@@ -246,11 +246,9 @@ class MetadataUploadHandler(UploadHandler):
 
         
         # sending the graph to the database
-        # This part doesn't work. It's not a problem related to the Java version installed on my pc (I tried)
-        # I used the code shown by the professor during the handson 05
         store = SPARQLUpdateStore()
 
-        endpoint = self.dbPathOrUrl
+        endpoint = self.dbPathOrUrl + "sparql"
 
         store.open((endpoint, endpoint))
 
@@ -259,4 +257,20 @@ class MetadataUploadHandler(UploadHandler):
 
         store.close()
 
-        return True
+        # checking if the graph was uploaded correctly
+        from sparql_dataframe import get
+
+        query = """
+        SELECT ?s ?p ?o
+        WHERE {
+            ?s ?p ?o .
+        }
+        """
+        df_sparql = get(endpoint, query, True)
+
+        n_triples_in_graph = len(metadata_graph)
+        n_triples_in_database = 0
+        for idx, row in df_sparql.iterrows():
+            n_triples_in_database += 1
+        
+        return n_triples_in_database == n_triples_in_graph

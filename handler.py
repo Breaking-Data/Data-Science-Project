@@ -246,6 +246,8 @@ class MetadataUploadHandler(UploadHandler):
 
         
         # sending the graph to the database
+        # This part doesn't work. It's not a problem related to the Java version installed on my pc (I tried)
+        # I used the code shown by the professor during the handson 05
         store = SPARQLUpdateStore()
 
         endpoint = self.dbPathOrUrl

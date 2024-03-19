@@ -2,9 +2,10 @@ from json import load
 from pprint import pprint
 from pandas import DataFrame, concat
 from sqlite3 import connect
-from pandas import read_csv, Series
-from rdflib import Graph, URIRef, Namespace, RDF, Literal
+from pandas import read_csv, read_sql, Series
+from rdflib import Graph, URIRef, RDF, Namespace, Literal
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
+from sparql_dataframe import get
 
 
 class Handler(object):
@@ -98,13 +99,20 @@ class ProcessDataUploadHandler(UploadHandler):
                         data_type_dict[f"{column}"] = "string"
                         con.execute(f"DROP TABLE IF EXISTS {table_name}")
                         table.to_sql(f"{table_name}", con, if_exists="replace",index=False,
-                                    dtype = data_type_dict)
-               
-'''execution       
+                                            dtype = data_type_dict)
+                        
+        
+
+        if type(json_file) == str:
+            return True
+        else:
+            False
+
+# exemplar execution
 rel_path = "relational.db"
 process = ProcessDataUploadHandler()
 process.setDbPathOrUrl(rel_path)
-process.pushDataToDb("C:/Users/pietr/Desktop/proveprogetto/process_test.json")''' 
+process.pushDataToDb("data/process.json")
 
 # The class for uploading the csv file to a graph database
 class MetadataUploadHandler(UploadHandler):
@@ -259,8 +267,6 @@ class MetadataUploadHandler(UploadHandler):
         store.close()
 
         # checking if the graph was uploaded correctly
-        from sparql_dataframe import get
-
         query = """
         SELECT ?s ?p ?o
         WHERE {
@@ -275,3 +281,87 @@ class MetadataUploadHandler(UploadHandler):
             n_triples_in_database += 1
         
         return n_triples_in_database == n_triples_in_graph
+    
+
+class QueryHandler(Handler):
+    def getById(self, id: str) -> DataFrame:
+        # !COMPLETE THE RELETAIONAL DB QUERY!
+        db_address = self.getDbPathOrUrl()
+        if ".db" in db_address:
+            with connect(db_address) as con:
+                query = """
+                SELECT *
+                FROM
+                """%id
+                df_entity = read_sql(query, con)
+            
+        else:
+            endpoint = db_address + "sparql"
+            query = """
+            PREFIX schema: <http://schema.org/>
+
+            SELECT ?entity
+            WHERE {
+                ?entity schema:identifier "%s" .
+            }
+            """%id
+            df_entity = get(endpoint, query, True)
+
+        return df_entity
+    
+
+class MetadataQueryHandler(QueryHandler):
+    query_header = """
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX schema: <http://schema.org/>
+
+    """
+
+# it returns a data frame containing all the people included in the database.
+    def getAllPeople(self) -> DataFrame:
+        endpoint = self.getDbPathOrUrl() + "sparql"
+        query = self.query_header + """
+        SELECT ?person
+        WHERE {
+            ?person rdf:type schema:Person .
+        }
+        """
+        df_people = get(endpoint, query, True)
+        return df_people
+
+# it returns a data frame with all the cultural heritage objects described in it.
+    def getAllCulturalHeritageObjects(self) -> DataFrame:
+        endpoint = self.getDbPathOrUrl() + "sparql"
+        query = self.query_header + """
+        SELECT ?cultural_heritage_objects
+        WHERE {
+            ?cultural_heritage_objects rdf:type ?o .
+            FILTER (?o != schema:Person)
+        }
+        """
+        df_cultural_heritage_objects = get(endpoint, query, True)
+        return df_cultural_heritage_objects
+
+# it returns a data frame with all the authors of the cultural heritage objects identified by the input id.
+    def getAuthorsOfCulturalHeritageObject(self, objectId: str) -> DataFrame:
+        endpoint = self.getDbPathOrUrl() + "sparql"
+        query = self.query_header + """
+        SELECT ?authors
+        WHERE {
+            "%s" schema:author ?authors .
+        }
+        """%objectId
+        df_authors_of_cultural_heritage_objects = get(endpoint, query, True)
+        return df_authors_of_cultural_heritage_objects
+
+# it returns a data frame with all the cultural heritage objects authored by the person identified by the input id.
+    def getCulturalHeritageObjectsAuthoredBy(self, personId: str) -> DataFrame:
+        endpoint = self.getDbPathOrUrl() + "sparql"
+        query = self.query_header + """
+        SELECT ?cultural_object
+        WHERE {
+            ?cultural_object schema:author "%s" .
+        }
+        """%personId
+        df_cultural_heritage_objects_authored_by = get(endpoint, query, True)
+        return df_cultural_heritage_objects_authored_by

@@ -76,14 +76,12 @@ class Map(CulturalHeritageObject):
     pass
     
 
-# Ho settato il valore di alcune variabili su None perché, come scritto nel data
-# model sono attributi che potrebbero anche essere omessi. 
-# tool è impostato su set(), se nulla viene dichiarato, allora viene restituito 
-# un set vuoto.
-# Per creare il collegamento tra oggetto Activity e oggetto CulturalHeritageObject,
-# ho inserito nel costruttore un altro argomento obbligatorio.
-class Activity:
-    def __init__(self, institute, culturalHeritageObject, person=None, tool=set(), start=None, end=None):
+""" 
+All the arguments have suggested input type. The optionals arguments are None by
+default, except tool, that by default is an empty set.
+"""
+class Activity(object):
+    def __init__(self, institute: str, culturalHeritageObject: CulturalHeritageObject, person: str = None, tool: set = set(), start: str = None, end: str = None):
         self.institute = institute
         self.person = person
         self.tool = tool
@@ -91,30 +89,31 @@ class Activity:
         self.end = end
         self.culturalHeritageObject = culturalHeritageObject
 
-    def getResposibleInstitute(self):
+    def getResposibleInstitute(self) -> str:
         return self.institute
 
-    def getResposiblePerson(self):
+    def getResposiblePerson(self) -> str|None:
         return self.person
 
-    def getTools(self):
+    def getTools(self) -> set:
         return self.tool
 
-    def getStartDate(self):
+    def getStartDate(self) -> str|None:
         return self.start
 
-    def getEndDate(self):
+    def getEndDate(self) -> str|None:
         return self.end
 
-    def refersTo(self):
+    def refersTo(self) -> CulturalHeritageObject:
         return self.culturalHeritageObject
+   
     
 class Acquisition(Activity):
-    def __init__(self, technique, institute, culturalHeritageObject, person=None, tool=set(), start=None, end=None):
-        super().__init__(institute, culturalHeritageObject, person=None, tool=set(), start=None, end=None)
+    def __init__(self, technique: str, institute: str, culturalHeritageObject: CulturalHeritageObject, person: str =None, tool: set = set(), start: str = None, end: str = None):
+        super().__init__(institute, culturalHeritageObject, person, tool, start, end)
         self.technique = technique
 
-    def getTechnique(self):
+    def getTechnique(self) -> str:
         return self.technique
     
 class Processing(Activity):

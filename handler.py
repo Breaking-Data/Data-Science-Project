@@ -33,28 +33,27 @@ class ProcessDataUploadHandler(UploadHandler):
         super().__init__()
 
     def pushDataToDb(self, json_file):
-        
+
+        # create a big datafame representing the entire json file.
         with open(json_file) as f:
             list_of_dict = load(f)
             keys = list_of_dict[0].keys()
-            # a dataframe representing the entire json file
             j_df = DataFrame(list_of_dict, columns=keys)
-             
-            table_dict = {}
+
+            # create empty dataframes (with the correct column names) for each activity.
+            df_dict = {}
             for column_name in j_df.columns.to_list()[1:]:
                 cell = j_df.loc[0,column_name]
+
                 if type(cell) == dict:
                     keys = cell.keys() 
-                    table_dict[column_name] = DataFrame(columns=keys)
-                    # creates new column with the unic id for each table
-                    table_dict[column_name].insert(0, f"{column_name}"+" id", [])
-                # works but not final and not usefull
-                #if type(cell) == str:
-                #  table_dict[column_name] = DataFrame([],columns=[column_name,"acquisition id","processing id","modelling id","optimising id","exporting id"])
-        
-            for table_name, table in table_dict.items():
-                for column_to_fill in table.columns.to_list()[1:]:
-                    
+                    df_dict[column_name] = DataFrame(columns=keys)
+                    df_dict[column_name].insert(0, "internal Id", [])
+
+            # populate each empty dataframe with the correct information from j_df        
+            for df_name, df in df_dict.items():
+
+                for column_to_fill in df.columns.to_list()[1:]:
                     unic_identifiers = []
                     content = []
                     num_rows = len(j_df)
@@ -62,48 +61,50 @@ class ProcessDataUploadHandler(UploadHandler):
                     id_counter = 1
 
                     while i < num_rows:
-
-                        cell = j_df.loc[i][table_name]
+                        cell = j_df.loc[i][df_name]
                         column_value = cell[column_to_fill]
                         if type(column_value) == list:
-                            column_value = ", ".join(column_value) #list or string?
+                                column_value = ", ".join(column_value) 
                         if column_value == "":
-                            column_value = None
+                                column_value = None
                         content.append(column_value)
-                        # could be erased when we understand  foreign keys
-                        unic_identifiers.append(f"{table.columns[0]} {id_counter}") 
+                        unic_identifiers.append(f"{df_name}-{id_counter}") 
                         i += 1
                         id_counter += 1
+                
+                    df[column_to_fill] = content
+                    df[df.columns[0]] = unic_identifiers 
+                    df["object id"] = j_df[j_df.columns[0]]
 
-                    table[column_to_fill] = content
-                    table[table.columns[0]] = unic_identifiers
-                    # the object id row can be removed if not needed (just delite this line) 
-                    table["object id"] = j_df[j_df.columns[0]]
+            # correct the tables and the columns names
+            table_dict = {}
+            for df_name, df in df_dict.items():
+                table_dict[df_name[0].upper() + df_name[1:]] = df
+                new_columns = []
 
+                for column_name in df.columns.tolist():
+                    new_name = column_name.title()
+                    new_name = new_name.replace(" ","")
+                    new_name = new_name[0].lower() + new_name[1:]
+                    new_columns.append(new_name)
+                df.columns = new_columns
+                
+            # storing the tables into the relational database
             with connect(self.dbPathOrUrl) as con:
                 for table_name, table in table_dict.items():
                     data_type_dict = {}
+
                     for column in table.columns.to_list():
-                        if table[column].dtype == int:
-                                data_type_dict[f"{column}"] = "integer"
-                        if table[column].dtype== str:
-                                data_type_dict[f"{column}"] = "string"
-
+                        data_type_dict[f"{column}"] = "string"
+                        con.execute(f"DROP TABLE IF EXISTS {table_name}")
                         table.to_sql(f"{table_name}", con, if_exists="replace",index=False,
-                                            dtype = data_type_dict)
-                        
-            con.close() # I don't know if we need it 
-
-        if type(json_file) == str:
-            return True
-        else:
-            False
-
-# exemplar execution
+                                    dtype = data_type_dict)
+               
+'''execution       
 rel_path = "relational.db"
 process = ProcessDataUploadHandler()
 process.setDbPathOrUrl(rel_path)
-process.pushDataToDb("data/process.json")
+process.pushDataToDb("C:/Users/pietr/Desktop/proveprogetto/process_test.json")''' 
 
 # The class for uploading the csv file to a graph database
 class MetadataUploadHandler(UploadHandler):

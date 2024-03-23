@@ -33,7 +33,7 @@ class ProcessDataUploadHandler(UploadHandler):
     def __init__(self):
         super().__init__()
 
-    def pushDataToDb(self, json_file):
+    def pushDataToDb(self, json_file: str) -> bool:
 
         # create a big datafame representing the entire json file.
         with open(json_file) as f:
@@ -101,12 +101,20 @@ class ProcessDataUploadHandler(UploadHandler):
                         table.to_sql(f"{table_name}", con, if_exists="replace",index=False,
                                             dtype = data_type_dict)
                         
-        
-
-        if type(json_file) == str:
+        # check if all the tables are correctly stored into the relational db           
+        cursor = con.cursor()          
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        c = cursor.fetchall()
+        tables_in_db = []
+        for table in c:
+            tables_in_db.append(table[0])
+        tables_in_dict = table_dict.keys()
+        if set(tables_in_dict) == set(tables_in_db):
             return True
         else:
-            False
+            return False
+
+       
 
 # exemplar execution
 rel_path = "relational.db"

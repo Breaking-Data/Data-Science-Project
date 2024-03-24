@@ -1,8 +1,7 @@
 from json import load
 from pprint import pprint
-from pandas import DataFrame, concat
+from pandas import DataFrame, concat, read_csv, read_sql, Series
 from sqlite3 import connect
-from pandas import read_csv, read_sql, Series
 from rdflib import Graph, URIRef, RDF, Namespace, Literal
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 from sparql_dataframe import get
@@ -22,12 +21,14 @@ class Handler(object):
         else:
             return False
 
+
 class UploadHandler(Handler):
     def __init__(self):
         super().__init__()
 
     def pushDataToDb(self):
         pass
+
 
 class ProcessDataUploadHandler(UploadHandler):
     def __init__(self):
@@ -44,14 +45,14 @@ class ProcessDataUploadHandler(UploadHandler):
             # create empty dataframes (with the correct column names) for each activity.
             df_dict = {}
             for column_name in j_df.columns.to_list()[1:]:
-                cell = j_df.loc[0,column_name]
+                cell = j_df.loc[0, column_name]
 
                 if type(cell) == dict:
-                    keys = cell.keys() 
+                    keys = cell.keys()
                     df_dict[column_name] = DataFrame(columns=keys)
                     df_dict[column_name].insert(0, "internal Id", [])
 
-            # populate each empty dataframe with the correct information from j_df        
+            # populate each empty dataframe with the correct information from j_df
             for df_name, df in df_dict.items():
 
                 for column_to_fill in df.columns.to_list()[1:]:
@@ -65,16 +66,16 @@ class ProcessDataUploadHandler(UploadHandler):
                         cell = j_df.loc[i][df_name]
                         column_value = cell[column_to_fill]
                         if type(column_value) == list:
-                                column_value = ", ".join(column_value) 
+                            column_value = ", ".join(column_value)
                         if column_value == "":
-                                column_value = None
+                            column_value = None
                         content.append(column_value)
-                        unic_identifiers.append(f"{df_name}-{id_counter}") 
+                        unic_identifiers.append(f"{df_name}-{id_counter}")
                         i += 1
                         id_counter += 1
-                
+
                     df[column_to_fill] = content
-                    df[df.columns[0]] = unic_identifiers 
+                    df[df.columns[0]] = unic_identifiers
                     df["object id"] = j_df[j_df.columns[0]]
 
             # correct the tables and the columns names
@@ -85,11 +86,11 @@ class ProcessDataUploadHandler(UploadHandler):
 
                 for column_name in df.columns.tolist():
                     new_name = column_name.title()
-                    new_name = new_name.replace(" ","")
+                    new_name = new_name.replace(" ", "")
                     new_name = new_name[0].lower() + new_name[1:]
                     new_columns.append(new_name)
                 df.columns = new_columns
-                
+
             # storing the tables into the relational database
             with connect(self.dbPathOrUrl) as con:
                 for table_name, table in table_dict.items():
@@ -98,21 +99,26 @@ class ProcessDataUploadHandler(UploadHandler):
                     for column in table.columns.to_list():
                         data_type_dict[f"{column}"] = "string"
                         con.execute(f"DROP TABLE IF EXISTS {table_name}")
-                        table.to_sql(f"{table_name}", con, if_exists="replace",index=False,
-                                            dtype = data_type_dict)
-                        
-        
+                        table.to_sql(
+                            f"{table_name}",
+                            con,
+                            if_exists="replace",
+                            index=False,
+                            dtype=data_type_dict,
+                        )
 
         if type(json_file) == str:
             return True
         else:
             False
 
+
 # exemplar execution
 rel_path = "relational.db"
 process = ProcessDataUploadHandler()
 process.setDbPathOrUrl(rel_path)
 process.pushDataToDb("data/process.json")
+
 
 # The class for uploading the csv file to a graph database
 class MetadataUploadHandler(UploadHandler):
@@ -135,14 +141,16 @@ class MetadataUploadHandler(UploadHandler):
         date = URIRef(schema.dateCreated)
         owner = URIRef(github.owner)
         place = URIRef(schema.itemLocation)
-        
+
         # relations among classes
         hasAuthor = URIRef(schema.author)
 
         # attributes related to the Person class
-        name = URIRef(schema.name) # I'm not sure about this, 'cause "name" it's a propriety of the superclass "Thing" in schema.org
-                                    # (I'll explain to you my doubts)
-        
+        name = URIRef(
+            schema.name
+        )  # I'm not sure about this, 'cause "name" it's a propriety of the superclass "Thing" in schema.org
+        # (I'll explain to you my doubts)
+
         # classes of resources
         Person = URIRef(schema.Person)
         NauticalChart = URIRef(github.NauticalChart)
@@ -156,38 +164,42 @@ class MetadataUploadHandler(UploadHandler):
         Model = URIRef(github.Model)
         Map = URIRef(schema.Map)
 
-        # the process to push the data 
-        metadata_frame = read_csv(path, keep_default_na=False, dtype={"Id": "string",
-                                                                       "Type": "string", 
-                                                                       "Title": "string", 
-                                                                       "Date": "string", 
-                                                                       "Author": "string", 
-                                                                       "Owner": "string",
-                                                                       "Place": "string"})
-        
+        # the process to push the data
+        metadata_frame = read_csv(
+            path,
+            keep_default_na=False,
+            dtype={
+                "Id": "string",
+                "Type": "string",
+                "Title": "string",
+                "Date": "string",
+                "Author": "string",
+                "Owner": "string",
+                "Place": "string",
+            },
+        )
+
         base_url = "https://breaking-data.github.io/Data-Science-Project/"
 
-        
         # populating the graph with all the people
         people_authority_ids = dict()
         people_object_ids = dict()
         for idx, row in metadata_frame.iterrows():
             author = row["Author"]
             if author != "":
-                
+
                 # Here I'm isolating the authority identifier and the name of the author
                 for i, c in enumerate(author):
                     if c == "(":
                         indx_for_split = i
 
                 person_name = author[:indx_for_split]
-                person_id = author[(indx_for_split+1):-1]
+                person_id = author[(indx_for_split + 1) : -1]
                 object_id = row["Id"]
 
                 if person_id in people_authority_ids.keys():
                     person_uri = people_authority_ids[person_id]
                     people_object_ids[object_id] = person_uri
-
 
                 else:
 
@@ -201,8 +213,6 @@ class MetadataUploadHandler(UploadHandler):
 
                     people_authority_ids[person_id] = subj
                     people_object_ids[object_id] = subj
-
-
 
         # populating the graph with all the cultural heritage objects
         for idx, row in metadata_frame.iterrows():
@@ -242,7 +252,7 @@ class MetadataUploadHandler(UploadHandler):
 
             if row["Id"] != "":
                 metadata_graph.add((subj, identifier, Literal(row["Id"])))
-            if row["Title"] != "":   
+            if row["Title"] != "":
                 metadata_graph.add((subj, title, Literal(row["Title"])))
             if row["Date"] != "":
                 metadata_graph.add((subj, date, Literal(row["Date"])))
@@ -253,7 +263,6 @@ class MetadataUploadHandler(UploadHandler):
             if row["Author"] != "":
                 metadata_graph.add((subj, hasAuthor, people_object_ids[row["Id"]]))
 
-        
         # sending the graph to the database
         store = SPARQLUpdateStore()
 
@@ -262,7 +271,7 @@ class MetadataUploadHandler(UploadHandler):
         store.open((endpoint, endpoint))
 
         for triple in metadata_graph.triples((None, None, None)):
-                store.add(triple)
+            store.add(triple)
 
         store.close()
 
@@ -279,9 +288,9 @@ class MetadataUploadHandler(UploadHandler):
         n_triples_in_database = 0
         for idx, row in df_sparql.iterrows():
             n_triples_in_database += 1
-        
+
         return n_triples_in_database == n_triples_in_graph
-    
+
 
 class QueryHandler(Handler):
     def getById(self, id: str) -> DataFrame:
@@ -289,26 +298,32 @@ class QueryHandler(Handler):
         db_address = self.getDbPathOrUrl()
         if ".db" in db_address:
             with connect(db_address) as con:
-                query = """
+                query = (
+                    """
                 SELECT *
                 FROM
-                """%id
+                """
+                    % id
+                )
                 df_entity = read_sql(query, con)
-            
+
         else:
             endpoint = db_address + "sparql"
-            query = """
+            query = (
+                """
             PREFIX schema: <http://schema.org/>
 
             SELECT ?entity
             WHERE {
                 ?entity schema:identifier "%s" .
             }
-            """%id
+            """
+                % id
+            )
             df_entity = get(endpoint, query, True)
 
         return df_entity
-    
+
 
 class MetadataQueryHandler(QueryHandler):
     query_header = """
@@ -317,51 +332,241 @@ class MetadataQueryHandler(QueryHandler):
 
     """
 
-# it returns a data frame containing all the people included in the database.
+    # it returns a data frame containing all the people included in the database.
     def getAllPeople(self) -> DataFrame:
         endpoint = self.getDbPathOrUrl() + "sparql"
-        query = self.query_header + """
+        query = (
+            self.query_header
+            + """
         SELECT ?person
         WHERE {
             ?person rdf:type schema:Person .
         }
         """
+        )
         df_people = get(endpoint, query, True)
         return df_people
 
-# it returns a data frame with all the cultural heritage objects described in it.
+    # it returns a data frame with all the cultural heritage objects described in it.
     def getAllCulturalHeritageObjects(self) -> DataFrame:
         endpoint = self.getDbPathOrUrl() + "sparql"
-        query = self.query_header + """
+        query = (
+            self.query_header
+            + """
         SELECT ?cultural_heritage_objects
         WHERE {
             ?cultural_heritage_objects rdf:type ?o .
             FILTER (?o != schema:Person)
         }
         """
+        )
         df_cultural_heritage_objects = get(endpoint, query, True)
         return df_cultural_heritage_objects
 
-# it returns a data frame with all the authors of the cultural heritage objects identified by the input id.
+    # it returns a data frame with all the authors of the cultural heritage objects identified by the input id.
     def getAuthorsOfCulturalHeritageObject(self, objectId: str) -> DataFrame:
         endpoint = self.getDbPathOrUrl() + "sparql"
-        query = self.query_header + """
+        query = (
+            self.query_header
+            + """
         SELECT ?authors
         WHERE {
             "%s" schema:author ?authors .
         }
-        """%objectId
+        """
+            % objectId
+        )
         df_authors_of_cultural_heritage_objects = get(endpoint, query, True)
         return df_authors_of_cultural_heritage_objects
 
-# it returns a data frame with all the cultural heritage objects authored by the person identified by the input id.
+    # it returns a data frame with all the cultural heritage objects authored by the person identified by the input id.
     def getCulturalHeritageObjectsAuthoredBy(self, personId: str) -> DataFrame:
         endpoint = self.getDbPathOrUrl() + "sparql"
-        query = self.query_header + """
+        query = (
+            self.query_header
+            + """
         SELECT ?cultural_object
         WHERE {
             ?cultural_object schema:author "%s" .
         }
-        """%personId
+        """
+            % personId
+        )
         df_cultural_heritage_objects_authored_by = get(endpoint, query, True)
         return df_cultural_heritage_objects_authored_by
+
+
+# JSON Handler
+class ProcessDataQueryHandler(QueryHandler):
+    def getAllActivities(self) -> DataFrame:
+        with connect(self.getDbPathOrUrl()) as con:
+            query_all_activities = """
+            SELECT internalId, responsibleInstitute, responsiblePerson, tool, startDate, endDate, objectId, technique 
+            FROM Acquisition
+            UNION
+            SELECT internalId, responsibleInstitute, responsiblePerson, tool, startDate, endDate, objectId, NULL AS technique 
+            FROM Exporting
+            UNION
+            SELECT internalId, responsibleInstitute, responsiblePerson, tool, startDate, endDate, objectId, NULL AS technique 
+            FROM Modelling
+            UNION
+            SELECT internalId, responsibleInstitute, responsiblePerson, tool, startDate, endDate, objectId, NULL AS technique 
+            FROM Optimising
+            ORDER BY acquisition.objectId;
+            """
+
+            df_all_activities = read_sql(query_all_activities, con)
+
+        return df_all_activities
+
+    # add all the other columns for queries???
+    def getActivitiesByResponsibleInstitution(self, partialName: str) -> DataFrame:
+        with connect(self.getDbPathOrUrl()) as con:
+            query = f"""
+            SELECT * 
+            FROM (SELECT internalId, objectId, responsibleInstitute 
+            FROM Acquisition
+            UNION
+            SELECT internalId, objectId, responsibleInstitute 
+            FROM Exporting
+            UNION
+            SELECT  internalId, objectId, responsibleInstitute 
+            FROM Modelling
+            UNION
+            SELECT internalId, objectId, responsibleInstitute 
+            FROM Optimising
+            UNION
+            SELECT internalId, objectId, responsibleInstitute 
+            FROM Processing) AS subquery
+            WHERE responsibleInstitute LIKE '%{partialName}%'
+            ORDER BY objectId;"""
+
+            df = read_sql(query, con)
+        return df
+
+    # add all the other columns for queries???
+    def getActivitiesByresponsiblePerson(self, partialName: str) -> DataFrame:
+        with connect(self.getDbPathOrUrl()) as con:
+            query = f"""SELECT * FROM 
+            (SELECT internalId, objectId, responsiblePerson
+            FROM Acquisition
+            UNION
+            SELECT internalId, objectId, responsiblePerson 
+            FROM Exporting
+            UNION
+            SELECT  internalId, objectId, responsiblePerson 
+            FROM Modelling
+            UNION
+            SELECT internalId, objectId, responsiblePerson 
+            FROM Optimising
+            UNION
+            SELECT internalId, objectId, responsiblePerson 
+            FROM Processing) AS subquery
+            WHERE responsiblePerson LIKE '%{partialName}%'
+            ORDER BY objectId;"""
+
+            df = read_sql(query, con)
+        return df
+
+    # add all the other columns for queries???
+    def getActivitiesUsingTool(self, partialName: str) -> DataFrame:
+        with connect(self.getDbPathOrUrl()) as con:
+            query = f"""SELECT * FROM (SELECT internalId, objectId, tool
+            FROM Acquisition
+            UNION
+            SELECT internalId, objectId, tool 
+            FROM Exporting
+            UNION
+            SELECT  internalId, objectId, tool 
+            FROM Modelling
+            UNION
+            SELECT internalId, objectId, tool 
+            FROM Optimising
+            UNION
+            SELECT internalId, objectId, tool 
+            FROM Processing) AS subquery
+            WHERE tool LIKE '%{partialName}%'
+            ORDER BY objectId;"""
+
+            df = read_sql(query, con)
+        return df
+
+    def getActivitiesUsingTool(self, partialName: str) -> DataFrame:
+        with connect(self.getDbPathOrUrl()) as con:
+            query = f"""SELECT * FROM (SELECT internalId, objectId, tool
+            FROM Acquisition
+            UNION
+            SELECT internalId, objectId, tool 
+            FROM Exporting
+            UNION
+            SELECT  internalId, objectId, tool 
+            FROM Modelling
+            UNION
+            SELECT internalId, objectId, tool 
+            FROM Optimising
+            UNION
+            SELECT internalId, objectId, tool 
+            FROM Processing) AS subquery
+            WHERE tool LIKE '%{partialName}%'
+            ORDER BY objectId;"""
+
+            df = read_sql(query, con)
+        return df
+
+    def getActivitiesStartedAfter(self, date: str) -> DataFrame:
+        with connect(self.getDbPathOrUrl()) as con:
+            query = f"""
+            SELECT * FROM (SELECT internalId, objectId, startDate
+            FROM Acquisition
+            UNION
+            SELECT internalId, objectId, startDate 
+            FROM Exporting
+            UNION
+            SELECT  internalId, objectId, startDate
+            FROM Modelling
+            UNION
+            SELECT internalId, objectId, startDate
+            FROM Optimising
+            UNION
+            SELECT internalId, objectId, startDate
+            FROM Processing) AS subquery
+            WHERE startDate >= "{date}"
+            ORDER BY objectId;"""
+
+            df = read_sql(query, con)
+        return df
+
+    def getActivitiesEndedBefore(self, date: str) -> DataFrame:
+        with connect(self.getDbPathOrUrl()) as con:
+            query = f"""
+            SELECT * FROM (SELECT internalId, objectId, endDate
+            FROM Acquisition
+            UNION
+            SELECT internalId, objectId, endDate 
+            FROM Exporting
+            UNION
+            SELECT  internalId, objectId, endDate 
+            FROM Modelling
+            UNION
+            SELECT internalId, objectId, endDate 
+            FROM Optimising
+            UNION
+            SELECT internalId, objectId, endDate 
+            FROM Processing) AS subquery
+            WHERE endDate <= "{date}"
+            ORDER BY objectId;"""
+
+            df = read_sql(query, con)
+        return df
+
+    def getAcquisitionsByTechnique(self, partialName: str) -> DataFrame:
+        with connect(self.getDbPathOrUrl()) as con:
+            query = f"""
+            SELECT *
+            FROM Acquisition
+            WHERE technique LIKE "%{partialName}%"
+            ORDER BY objectId
+            """
+
+            df = read_sql(query, con)
+        return df

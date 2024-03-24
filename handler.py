@@ -34,7 +34,7 @@ class ProcessDataUploadHandler(UploadHandler):
     def __init__(self):
         super().__init__()
 
-    def pushDataToDb(self, json_file):
+    def pushDataToDb(self, json_file: str) -> bool:
 
         # create a big datafame representing the entire json file.
         with open(json_file) as f:
@@ -110,7 +110,7 @@ class ProcessDataUploadHandler(UploadHandler):
         if type(json_file) == str:
             return True
         else:
-            False
+            return False
 
 
 # exemplar execution

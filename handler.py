@@ -107,17 +107,18 @@ class ProcessDataUploadHandler(UploadHandler):
                             dtype=data_type_dict,
                         )
 
-        if type(json_file) == str:
+        # check if all the tables are correctly stored into the relational db           
+        cursor = con.cursor()          
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        c = cursor.fetchall()
+        tables_in_db = []
+        for table in c:
+            tables_in_db.append(table[0])
+        tables_in_dict = table_dict.keys()
+        if set(tables_in_dict) == set(tables_in_db):
             return True
         else:
             return False
-
-
-# exemplar execution
-rel_path = "relational.db"
-process = ProcessDataUploadHandler()
-process.setDbPathOrUrl(rel_path)
-process.pushDataToDb("data/process.json")
 
 
 # The class for uploading the csv file to a graph database

@@ -1,65 +1,57 @@
 from handler import MetadataQueryHandler, ProcessDataQueryHandler
 from cultural_objects import *
-from typing import List
 
-class BasicMashup():
-    MetadataQuery: List[MetadataQueryHandler] = []
-    ProcessQuery: List[ProcessDataQueryHandler] = []
+class BasicMashup(object):
+    def __init__(self, metadataQuery: list[MetadataQueryHandler] = [], processQuery: list[ProcessDataQueryHandler] = []) -> None:
+        self.metadataQuery = metadataQuery
+        self.processQuery = processQuery        
 
-    def cleanMetadataHandlers(self):
-        self.MetadataQuery = []
-        if len(self.MetadataQuery) == 0:
-            return True
-        else:
-            False
+    def cleanMetadataHandlers(self) -> bool: #Romolo
+        self.metadataQuery = []
+        return len(self.metadataQuery) == 0
     
-    def cleanProcessHandlers(self):
+    def cleanProcessHandlers(self) -> bool: #Pietro
         self.processQuery = []
-        if len(self.processQuery) == 0:
-            return True
-        else:
-            False
-    
-    def addMetadataHandler(self):
+        return len(self.processQuery) == 0
+            
+    def addMetadataHandler(self) -> bool: #Simone
         pass
 
-    def addProcessHandler(self):
+    def addProcessHandler(self) -> bool: #Ludovica
         pass
 
-    def getEntityById(self):
+    def getEntityById(self) -> IdentifiableEntity|None: #Simone
         pass
     
-    def getAllPeople(self):
+    def getAllPeople(self) -> list[Person]: #Romolo
         pass
 
-    def getAllCulturalHeritageObjects(self):
+    def getAllCulturalHeritageObjects(self) -> list[CulturalHeritageObject]: #Ludovica
         pass
 
-    def getAuthorsOfCulturalHeritageObject(self, objectId: str) -> List[Person]:
+    def getAuthorsOfCulturalHeritageObject(self, objectId: str) -> list[Person]: #Pietro
+        return [1]
+
+    def getCulturalHeritageObjectsAuthoredBy(self) -> list[CulturalHeritageObject]: #Pietro
         pass
 
-    def getCulturalHeritageObjectsAuthoredBy(self):
+    def getAllActivities(self) -> list[Activity]: #Simone
         pass
 
-    def getAllActivities(self):
+    def getActivitiesByResponsibleInstitution(self) -> list[Activity]: #Ludovica
         pass
 
-    def getActivitiesByResponsibleInstitution(self):
+    def getActivitiesByResponsiblePerson(self) -> list[Activity]: #Romolo
         pass
 
-    def getActivitiesByResponsiblePerson(self):
+    def getActivitiesUsingTool(self) -> list[Activity]: #Simone
         pass
 
-    def getActivitiesUsingTool(self):
+    def getActivitiesStartedAfter(self) -> list[Activity]: #Romolo
         pass
 
-    def getActivitiesStartedAfter(self):
+    def getActivitiesEndedBefore(self) -> list[Activity]: #Pietro
         pass
 
-    def getActivitiesEndedBefore(self):
+    def getAcquisitionsByTechnique(self) -> list[Acquisition]: #Ludovica
         pass
-
-    def getAcquisitionsByTechnique(self):
-        pass
-
-

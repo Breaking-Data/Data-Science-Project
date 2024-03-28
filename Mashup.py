@@ -14,13 +14,15 @@ class BasicMashup(object):
         self.processQuery = []
         return len(self.processQuery) == 0
             
-    def addMetadataHandler(self) -> bool: #Simone
-        pass
+    def addMetadataHandler(self, handler: MetadataQueryHandler) -> bool: #Simone
+        len_processQuery = len(self.processQuery)
+        self.processQuery.append(handler)
+        return len_processQuery == (len(self.processQuery) + 1)
 
     def addProcessHandler(self) -> bool: #Ludovica
         pass
 
-    def getEntityById(self) -> IdentifiableEntity|None: #Simone
+    def getEntityById(self, id: str) -> IdentifiableEntity|None: #Simone
         pass
     
     def getAllPeople(self) -> list[Person]: #Romolo

@@ -401,6 +401,7 @@ class MetadataQueryHandler(QueryHandler):
 class ProcessDataQueryHandler(QueryHandler):
     all_cols_null_tech = "internalId, responsibleInstitute, responsiblePerson, NULL AS technique, tool, startDate, endDate, objectId"
 
+    # returns a dataframe with all the activities in the database.
     def getAllActivities(self) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
             query_all_activities = f"""
@@ -425,126 +426,146 @@ class ProcessDataQueryHandler(QueryHandler):
 
         return df_all_activities
 
+    # returns a data frame with all the activities that have, as responsible institution, any that matches (even partially) with the input string.
     def getActivitiesByResponsibleInstitution(self, partialName: str) -> DataFrame:
+        with connect(self.getDbPathOrUrl()) as con:
+            query = f"""
+                SELECT * 
+                FROM (
+                    SELECT *
+                    FROM Acquisition
+                    UNION
+                    SELECT {self.all_cols_null_tech}
+                    FROM Exporting
+                    UNION
+                    SELECT {self.all_cols_null_tech}
+                    FROM Modelling
+                    UNION
+                    SELECT {self.all_cols_null_tech}
+                    FROM Optimising
+                    UNION
+                    SELECT {self.all_cols_null_tech}
+                    FROM Processing
+                ) AS subquery
+                WHERE responsibleInstitute LIKE '%{partialName}%'
+                ORDER BY objectId;
+                """
+            df = read_sql(query, con)
+        return df
+
+    #  returns a data frame with all the activities that have, as responsible person, any that matches (even partially) with the input string.
+    def getActivitiesByResponsiblePerson(self, partialName: str) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
             query = f"""
             SELECT * 
             FROM (
-            SELECT *
-            FROM Acquisition
-            UNION
-            SELECT {self.all_cols_null_tech}
-            FROM Exporting
-            UNION
-            SELECT {self.all_cols_null_tech}
-            FROM Modelling
-            UNION
-            SELECT {self.all_cols_null_tech}
-            FROM Optimising
-            UNION
-            SELECT {self.all_cols_null_tech}
-            FROM Processing) AS subquery
-            WHERE responsibleInstitute LIKE '%{partialName}%'
-            ORDER BY objectId;"""
-
-            df = read_sql(query, con)
-        return df
-
-    def getActivitiesByResponsiblePerson(self, partialName: str) -> DataFrame:
-        with connect(self.getDbPathOrUrl()) as con:
-            query = f"""SELECT * FROM (
-            SELECT *
-            FROM Acquisition
-            UNION
-            SELECT {self.all_cols_null_tech} 
-            FROM Exporting
-            UNION
-            SELECT  {self.all_cols_null_tech} 
-            FROM Modelling
-            UNION
-            SELECT {self.all_cols_null_tech} 
-            FROM Optimising
-            UNION
-            SELECT {self.all_cols_null_tech} 
-            FROM Processing) AS subquery
+                SELECT *
+                FROM Acquisition
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Exporting
+                UNION
+                SELECT  {self.all_cols_null_tech} 
+                FROM Modelling
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Optimising
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Processing
+            ) AS subquery
             WHERE responsiblePerson LIKE '%{partialName}%'
-            ORDER BY objectId;"""
+            ORDER BY objectId;
+            """
 
             df = read_sql(query, con)
         return df
 
+    # returns a data frame with all the activities that have, as a tool used, any that matches (even partially) with the input string.
     def getActivitiesUsingTool(self, partialName: str) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
-            query = f"""SELECT * FROM (
-            SELECT *
-            FROM Acquisition
-            UNION
-            SELECT {self.all_cols_null_tech} 
-            FROM Exporting
-            UNION
-            SELECT {self.all_cols_null_tech}  
-            FROM Modelling
-            UNION
-            SELECT {self.all_cols_null_tech} 
-            FROM Optimising
-            UNION
-            SELECT {self.all_cols_null_tech} 
-            FROM Processing) AS subquery
+            query = f"""
+            SELECT * 
+            FROM (
+                SELECT *
+                FROM Acquisition
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Exporting
+                UNION
+                SELECT {self.all_cols_null_tech}  
+                FROM Modelling
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Optimising
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Processing
+            ) AS subquery
             WHERE tool LIKE '%{partialName}%'
-            ORDER BY objectId;"""
+            ORDER BY objectId;
+            """
 
             df = read_sql(query, con)
         return df
 
+    # returns a data frame with all the activities that started either exactly on or after the date specified as input.
     def getActivitiesStartedAfter(self, date: str) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
             query = f"""
-            SELECT * FROM (
-            SELECT *
-            FROM Acquisition
-            UNION
-            SELECT {self.all_cols_null_tech} 
-            FROM Exporting
-            UNION
-            SELECT {self.all_cols_null_tech} 
-            FROM Modelling
-            UNION
-            SELECT {self.all_cols_null_tech} 
-            FROM Optimising
-            UNION
-            SELECT {self.all_cols_null_tech} 
-            FROM Processing) AS subquery
+                SELECT * 
+                FROM (
+                SELECT *
+                FROM Acquisition
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Exporting
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Modelling
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Optimising
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Processing
+            ) AS subquery
             WHERE startDate >= "{date}"
-            ORDER BY objectId;"""
+            ORDER BY objectId;
+            """
 
             df = read_sql(query, con)
         return df
 
+    # returns a data frame with all the activities that ended either exactly on or before the date specified as input.
     def getActivitiesEndedBefore(self, date: str) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
             query = f"""
-            SELECT * FROM (
-            SELECT *
-            FROM Acquisition
-            UNION
-            SELECT {self.all_cols_null_tech} 
-            FROM Exporting
-            UNION
-            SELECT {self.all_cols_null_tech}  
-            FROM Modelling
-            UNION
-            SELECT {self.all_cols_null_tech} 
-            FROM Optimising
-            UNION
-            SELECT {self.all_cols_null_tech} 
-            FROM Processing) 
-            AS subquery
+            SELECT 
+            * FROM (
+                SELECT *
+                FROM Acquisition
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Exporting
+                UNION
+                SELECT {self.all_cols_null_tech}  
+                FROM Modelling
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Optimising
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Processing
+            ) AS subquery
             WHERE endDate <= "{date}"
-            ORDER BY objectId;"""
+            ORDER BY objectId;
+            """
 
             df = read_sql(query, con)
         return df
 
+    # returns a data frame with all the acquisitions that have, as a technique used, any that matches (even partially) with the input string.
     def getAcquisitionsByTechnique(self, partialName: str) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
             query = f"""

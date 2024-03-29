@@ -107,8 +107,8 @@ class ProcessDataUploadHandler(UploadHandler):
                             dtype=data_type_dict,
                         )
 
-        # check if all the tables are correctly stored into the relational db           
-        cursor = con.cursor()          
+        # check if all the tables are correctly stored into the relational db
+        cursor = con.cursor()
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
         c = cursor.fetchall()
         tables_in_db = []
@@ -397,21 +397,26 @@ class MetadataQueryHandler(QueryHandler):
         return df_cultural_heritage_objects_authored_by
 
 
-# JSON Handler
+# Process from the JSON Handler
 class ProcessDataQueryHandler(QueryHandler):
+    all_cols_null_tech = "internalId, responsibleInstitute, responsiblePerson, NULL AS technique, tool, startDate, endDate, objectId"
+
     def getAllActivities(self) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
-            query_all_activities = """
-            SELECT internalId, responsibleInstitute, responsiblePerson, tool, startDate, endDate, objectId, technique 
+            query_all_activities = f"""
+            SELECT *
             FROM Acquisition
             UNION
-            SELECT internalId, responsibleInstitute, responsiblePerson, tool, startDate, endDate, objectId, NULL AS technique 
+            SELECT {self.all_cols_null_tech} 
+            FROM Processing
+            UNION
+            SELECT {self.all_cols_null_tech} 
             FROM Exporting
             UNION
-            SELECT internalId, responsibleInstitute, responsiblePerson, tool, startDate, endDate, objectId, NULL AS technique 
+            SELECT {self.all_cols_null_tech} 
             FROM Modelling
             UNION
-            SELECT internalId, responsibleInstitute, responsiblePerson, tool, startDate, endDate, objectId, NULL AS technique 
+            SELECT {self.all_cols_null_tech}  
             FROM Optimising
             ORDER BY acquisition.objectId;
             """
@@ -420,24 +425,24 @@ class ProcessDataQueryHandler(QueryHandler):
 
         return df_all_activities
 
-    # add all the other columns for queries???
     def getActivitiesByResponsibleInstitution(self, partialName: str) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
             query = f"""
             SELECT * 
-            FROM (SELECT internalId, objectId, responsibleInstitute 
+            FROM (
+            SELECT *
             FROM Acquisition
             UNION
-            SELECT internalId, objectId, responsibleInstitute 
+            SELECT {self.all_cols_null_tech}
             FROM Exporting
             UNION
-            SELECT  internalId, objectId, responsibleInstitute 
+            SELECT {self.all_cols_null_tech}
             FROM Modelling
             UNION
-            SELECT internalId, objectId, responsibleInstitute 
+            SELECT {self.all_cols_null_tech}
             FROM Optimising
             UNION
-            SELECT internalId, objectId, responsibleInstitute 
+            SELECT {self.all_cols_null_tech}
             FROM Processing) AS subquery
             WHERE responsibleInstitute LIKE '%{partialName}%'
             ORDER BY objectId;"""
@@ -445,23 +450,22 @@ class ProcessDataQueryHandler(QueryHandler):
             df = read_sql(query, con)
         return df
 
-    # add all the other columns for queries???
-    def getActivitiesByresponsiblePerson(self, partialName: str) -> DataFrame:
+    def getActivitiesByResponsiblePerson(self, partialName: str) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
-            query = f"""SELECT * FROM 
-            (SELECT internalId, objectId, responsiblePerson
+            query = f"""SELECT * FROM (
+            SELECT *
             FROM Acquisition
             UNION
-            SELECT internalId, objectId, responsiblePerson 
+            SELECT {self.all_cols_null_tech} 
             FROM Exporting
             UNION
-            SELECT  internalId, objectId, responsiblePerson 
+            SELECT  {self.all_cols_null_tech} 
             FROM Modelling
             UNION
-            SELECT internalId, objectId, responsiblePerson 
+            SELECT {self.all_cols_null_tech} 
             FROM Optimising
             UNION
-            SELECT internalId, objectId, responsiblePerson 
+            SELECT {self.all_cols_null_tech} 
             FROM Processing) AS subquery
             WHERE responsiblePerson LIKE '%{partialName}%'
             ORDER BY objectId;"""
@@ -469,44 +473,22 @@ class ProcessDataQueryHandler(QueryHandler):
             df = read_sql(query, con)
         return df
 
-    # add all the other columns for queries???
     def getActivitiesUsingTool(self, partialName: str) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
-            query = f"""SELECT * FROM (SELECT internalId, objectId, tool
+            query = f"""SELECT * FROM (
+            SELECT *
             FROM Acquisition
             UNION
-            SELECT internalId, objectId, tool 
+            SELECT {self.all_cols_null_tech} 
             FROM Exporting
             UNION
-            SELECT  internalId, objectId, tool 
+            SELECT {self.all_cols_null_tech}  
             FROM Modelling
             UNION
-            SELECT internalId, objectId, tool 
+            SELECT {self.all_cols_null_tech} 
             FROM Optimising
             UNION
-            SELECT internalId, objectId, tool 
-            FROM Processing) AS subquery
-            WHERE tool LIKE '%{partialName}%'
-            ORDER BY objectId;"""
-
-            df = read_sql(query, con)
-        return df
-
-    def getActivitiesUsingTool(self, partialName: str) -> DataFrame:
-        with connect(self.getDbPathOrUrl()) as con:
-            query = f"""SELECT * FROM (SELECT internalId, objectId, tool
-            FROM Acquisition
-            UNION
-            SELECT internalId, objectId, tool 
-            FROM Exporting
-            UNION
-            SELECT  internalId, objectId, tool 
-            FROM Modelling
-            UNION
-            SELECT internalId, objectId, tool 
-            FROM Optimising
-            UNION
-            SELECT internalId, objectId, tool 
+            SELECT {self.all_cols_null_tech} 
             FROM Processing) AS subquery
             WHERE tool LIKE '%{partialName}%'
             ORDER BY objectId;"""
@@ -517,19 +499,20 @@ class ProcessDataQueryHandler(QueryHandler):
     def getActivitiesStartedAfter(self, date: str) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
             query = f"""
-            SELECT * FROM (SELECT internalId, objectId, startDate
+            SELECT * FROM (
+            SELECT *
             FROM Acquisition
             UNION
-            SELECT internalId, objectId, startDate 
+            SELECT {self.all_cols_null_tech} 
             FROM Exporting
             UNION
-            SELECT  internalId, objectId, startDate
+            SELECT {self.all_cols_null_tech} 
             FROM Modelling
             UNION
-            SELECT internalId, objectId, startDate
+            SELECT {self.all_cols_null_tech} 
             FROM Optimising
             UNION
-            SELECT internalId, objectId, startDate
+            SELECT {self.all_cols_null_tech} 
             FROM Processing) AS subquery
             WHERE startDate >= "{date}"
             ORDER BY objectId;"""
@@ -540,20 +523,22 @@ class ProcessDataQueryHandler(QueryHandler):
     def getActivitiesEndedBefore(self, date: str) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
             query = f"""
-            SELECT * FROM (SELECT internalId, objectId, endDate
+            SELECT * FROM (
+            SELECT *
             FROM Acquisition
             UNION
-            SELECT internalId, objectId, endDate 
+            SELECT {self.all_cols_null_tech} 
             FROM Exporting
             UNION
-            SELECT  internalId, objectId, endDate 
+            SELECT {self.all_cols_null_tech}  
             FROM Modelling
             UNION
-            SELECT internalId, objectId, endDate 
+            SELECT {self.all_cols_null_tech} 
             FROM Optimising
             UNION
-            SELECT internalId, objectId, endDate 
-            FROM Processing) AS subquery
+            SELECT {self.all_cols_null_tech} 
+            FROM Processing) 
+            AS subquery
             WHERE endDate <= "{date}"
             ORDER BY objectId;"""
 

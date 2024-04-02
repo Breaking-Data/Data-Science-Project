@@ -14,23 +14,35 @@ class BasicMashup(object):
         self.processQuery = []
         return len(self.processQuery) == 0
             
-    def addMetadataHandler(self) -> bool: #Simone
-        pass
+    def addMetadataHandler(self, handler: MetadataQueryHandler) -> bool: #Simone
+        len_processQuery = len(self.processQuery)
+        self.processQuery.append(handler)
+        return len_processQuery == (len(self.processQuery) + 1)
 
     def addProcessHandler(self) -> bool: #Ludovica
         pass
 
-    def getEntityById(self) -> IdentifiableEntity|None: #Simone
+    def getEntityById(self, id: str) -> IdentifiableEntity|None: #Simone
         pass
     
     def getAllPeople(self) -> list[Person]: #Romolo
-        pass
+        people = []
+        for metaGrinder in self.metadataQuery:
+            df_people = metaGrinder.getAllPeople()
+            
+            for index, row in df_people.iterrows():
+                person_name = row['name']
+                person_id = row['id']
+                person = Person(person_id, person_name)
+                people.append(person)
+
+        return people
 
     def getAllCulturalHeritageObjects(self) -> list[CulturalHeritageObject]: #Ludovica
         pass
 
     def getAuthorsOfCulturalHeritageObject(self, objectId: str) -> list[Person]: #Pietro
-        return [1]
+        pass
 
     def getCulturalHeritageObjectsAuthoredBy(self) -> list[CulturalHeritageObject]: #Pietro
         pass
@@ -41,7 +53,7 @@ class BasicMashup(object):
     def getActivitiesByResponsibleInstitution(self) -> list[Activity]: #Ludovica
         pass
 
-    def getActivitiesByResponsiblePerson(self) -> list[Activity]: #Romolo
+    def getActivitiesByResponsiblePerson(self, name: str) -> list[Activity]: #Romolo
         pass
 
     def getActivitiesUsingTool(self) -> list[Activity]: #Simone

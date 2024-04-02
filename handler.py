@@ -107,8 +107,8 @@ class ProcessDataUploadHandler(UploadHandler):
                             dtype=data_type_dict,
                         )
 
-        # check if all the tables are correctly stored into the relational db           
-        cursor = con.cursor()          
+        # check if all the tables are correctly stored into the relational db
+        cursor = con.cursor()
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
         c = cursor.fetchall()
         tables_in_db = []
@@ -295,33 +295,38 @@ class MetadataUploadHandler(UploadHandler):
 
 class QueryHandler(Handler):
     def getById(self, id: str) -> DataFrame:
-        # !COMPLETE THE RELETAIONAL DB QUERY!
         db_address = self.getDbPathOrUrl()
-        if ".db" in db_address:
-            with connect(db_address) as con:
-                query = (
-                    """
-                SELECT *
-                FROM
+        endpoint = db_address + "sparql"
+        query = "PREFIX schema: <http://schema.org/>"
+        if ":" in id:
+            query += (
                 """
-                    % id
-                )
-                df_entity = read_sql(query, con)
-
-        else:
-            endpoint = db_address + "sparql"
-            query = (
-                """
-            PREFIX schema: <http://schema.org/>
-
-            SELECT ?entity
-            WHERE {
-                ?entity schema:identifier "%s" .
-            }
-            """
-                % id
+                SELECT ?name
+                WHERE {
+                    ?uri schema:identifier "%s" .
+                    ?uri schema:name ?name .
+                }
+                """%id
             )
-            df_entity = get(endpoint, query, True)
+        else:
+            query += (
+                """
+                PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+                PREFIX github: <https://breaking-data.github.io/Data-Science-Project/>
+
+                SELECT ?type ?title ?date ?owner ?place ?author
+                WHERE {
+                ?obj schema:identifier "%s" .
+                ?obj rdf:type ?type .
+                ?obj schema:title ?title .
+                ?obj schema:dateCreated ?date .
+                ?obj github:owner ?owner .
+                ?obj schema:itemLocation ?place .
+                ?obj schema:author ?author .  
+                }
+                """%id
+            )
+        df_entity = get(endpoint, query, True)
 
         return df_entity
 
@@ -339,9 +344,11 @@ class MetadataQueryHandler(QueryHandler):
         query = (
             self.query_header
             + """
-        SELECT ?person
+        SELECT ?uri ?name ?id
         WHERE {
-            ?person rdf:type schema:Person .
+            ?uri rdf:type schema:Person .
+          	?uri schema:name ?name .
+            ?uri schema:identifier ?id .
         }
         """
         )
@@ -354,10 +361,18 @@ class MetadataQueryHandler(QueryHandler):
         query = (
             self.query_header
             + """
-        SELECT ?cultural_heritage_objects
+            PREFIX github: <https://breaking-data.github.io/Data-Science-Project/>
+
+        SELECT ?uri ?id ?title ?date ?owner ?place ?author
         WHERE {
-            ?cultural_heritage_objects rdf:type ?o .
+            ?uri rdf:type ?o .
             FILTER (?o != schema:Person)
+            ?uri schema:identifier ?id .
+            ?uri schema:title ?title .
+            ?uri schema:dateCreated ?date .
+            ?uri github:owner ?owner .
+            ?uri schema:itemLocation ?place .
+            ?uri schema:author ?author .  
         }
         """
         )
@@ -370,9 +385,12 @@ class MetadataQueryHandler(QueryHandler):
         query = (
             self.query_header
             + """
-        SELECT ?authors
+        SELECT ?name ?id
         WHERE {
-            "%s" schema:author ?authors .
+            FILTER (?obj = %s)
+            ?obj schema:author ?uri .
+            ?uri schema:name ?name .
+          	?uri schema:identifier ?id .
         }
         """
             % objectId
@@ -386,10 +404,16 @@ class MetadataQueryHandler(QueryHandler):
         query = (
             self.query_header
             + """
-        SELECT ?cultural_object
+        SELECT ?id ?title ?date ?owner ?place
         WHERE {
-            ?cultural_object schema:author "%s" .
-        }
+            ?uri schema:author %s .
+            ?uri rdf:type ?type .
+            ?uri schema:identifier ?id .
+            ?uri schema:title ?title .
+            ?uri schema:dateCreated ?date .
+            ?uri github:owner ?owner .
+            ?uri schema:itemLocation ?place .
+}
         """
             % personId
         )
@@ -397,21 +421,27 @@ class MetadataQueryHandler(QueryHandler):
         return df_cultural_heritage_objects_authored_by
 
 
-# JSON Handler
+# Process from the JSON Handler
 class ProcessDataQueryHandler(QueryHandler):
+    all_cols_null_tech = "internalId, responsibleInstitute, responsiblePerson, NULL AS technique, tool, startDate, endDate, objectId"
+
+    # returns a dataframe with all the activities in the database.
     def getAllActivities(self) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
-            query_all_activities = """
-            SELECT internalId, responsibleInstitute, responsiblePerson, tool, startDate, endDate, objectId, technique 
+            query_all_activities = f"""
+            SELECT *
             FROM Acquisition
             UNION
-            SELECT internalId, responsibleInstitute, responsiblePerson, tool, startDate, endDate, objectId, NULL AS technique 
+            SELECT {self.all_cols_null_tech} 
+            FROM Processing
+            UNION
+            SELECT {self.all_cols_null_tech} 
             FROM Exporting
             UNION
-            SELECT internalId, responsibleInstitute, responsiblePerson, tool, startDate, endDate, objectId, NULL AS technique 
+            SELECT {self.all_cols_null_tech} 
             FROM Modelling
             UNION
-            SELECT internalId, responsibleInstitute, responsiblePerson, tool, startDate, endDate, objectId, NULL AS technique 
+            SELECT {self.all_cols_null_tech}  
             FROM Optimising
             ORDER BY acquisition.objectId;
             """
@@ -420,146 +450,146 @@ class ProcessDataQueryHandler(QueryHandler):
 
         return df_all_activities
 
-    # add all the other columns for queries???
+    # returns a data frame with all the activities that have, as responsible institution, any that matches (even partially) with the input string.
     def getActivitiesByResponsibleInstitution(self, partialName: str) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
             query = f"""
+                SELECT * 
+                FROM (
+                    SELECT *
+                    FROM Acquisition
+                    UNION
+                    SELECT {self.all_cols_null_tech}
+                    FROM Exporting
+                    UNION
+                    SELECT {self.all_cols_null_tech}
+                    FROM Modelling
+                    UNION
+                    SELECT {self.all_cols_null_tech}
+                    FROM Optimising
+                    UNION
+                    SELECT {self.all_cols_null_tech}
+                    FROM Processing
+                ) AS subquery
+                WHERE responsibleInstitute LIKE '%{partialName}%'
+                ORDER BY objectId;
+                """
+            df = read_sql(query, con)
+        return df
+
+    #  returns a data frame with all the activities that have, as responsible person, any that matches (even partially) with the input string.
+    def getActivitiesByResponsiblePerson(self, partialName: str) -> DataFrame:
+        with connect(self.getDbPathOrUrl()) as con:
+            query = f"""
             SELECT * 
-            FROM (SELECT internalId, objectId, responsibleInstitute 
-            FROM Acquisition
-            UNION
-            SELECT internalId, objectId, responsibleInstitute 
-            FROM Exporting
-            UNION
-            SELECT  internalId, objectId, responsibleInstitute 
-            FROM Modelling
-            UNION
-            SELECT internalId, objectId, responsibleInstitute 
-            FROM Optimising
-            UNION
-            SELECT internalId, objectId, responsibleInstitute 
-            FROM Processing) AS subquery
-            WHERE responsibleInstitute LIKE '%{partialName}%'
-            ORDER BY objectId;"""
-
-            df = read_sql(query, con)
-        return df
-
-    # add all the other columns for queries???
-    def getActivitiesByresponsiblePerson(self, partialName: str) -> DataFrame:
-        with connect(self.getDbPathOrUrl()) as con:
-            query = f"""SELECT * FROM 
-            (SELECT internalId, objectId, responsiblePerson
-            FROM Acquisition
-            UNION
-            SELECT internalId, objectId, responsiblePerson 
-            FROM Exporting
-            UNION
-            SELECT  internalId, objectId, responsiblePerson 
-            FROM Modelling
-            UNION
-            SELECT internalId, objectId, responsiblePerson 
-            FROM Optimising
-            UNION
-            SELECT internalId, objectId, responsiblePerson 
-            FROM Processing) AS subquery
+            FROM (
+                SELECT *
+                FROM Acquisition
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Exporting
+                UNION
+                SELECT  {self.all_cols_null_tech} 
+                FROM Modelling
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Optimising
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Processing
+            ) AS subquery
             WHERE responsiblePerson LIKE '%{partialName}%'
-            ORDER BY objectId;"""
+            ORDER BY objectId;
+            """
 
             df = read_sql(query, con)
         return df
 
-    # add all the other columns for queries???
+    # returns a data frame with all the activities that have, as a tool used, any that matches (even partially) with the input string.
     def getActivitiesUsingTool(self, partialName: str) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
-            query = f"""SELECT * FROM (SELECT internalId, objectId, tool
-            FROM Acquisition
-            UNION
-            SELECT internalId, objectId, tool 
-            FROM Exporting
-            UNION
-            SELECT  internalId, objectId, tool 
-            FROM Modelling
-            UNION
-            SELECT internalId, objectId, tool 
-            FROM Optimising
-            UNION
-            SELECT internalId, objectId, tool 
-            FROM Processing) AS subquery
+            query = f"""
+            SELECT * 
+            FROM (
+                SELECT *
+                FROM Acquisition
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Exporting
+                UNION
+                SELECT {self.all_cols_null_tech}  
+                FROM Modelling
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Optimising
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Processing
+            ) AS subquery
             WHERE tool LIKE '%{partialName}%'
-            ORDER BY objectId;"""
+            ORDER BY objectId;
+            """
 
             df = read_sql(query, con)
         return df
 
-    def getActivitiesUsingTool(self, partialName: str) -> DataFrame:
-        with connect(self.getDbPathOrUrl()) as con:
-            query = f"""SELECT * FROM (SELECT internalId, objectId, tool
-            FROM Acquisition
-            UNION
-            SELECT internalId, objectId, tool 
-            FROM Exporting
-            UNION
-            SELECT  internalId, objectId, tool 
-            FROM Modelling
-            UNION
-            SELECT internalId, objectId, tool 
-            FROM Optimising
-            UNION
-            SELECT internalId, objectId, tool 
-            FROM Processing) AS subquery
-            WHERE tool LIKE '%{partialName}%'
-            ORDER BY objectId;"""
-
-            df = read_sql(query, con)
-        return df
-
+    # returns a data frame with all the activities that started either exactly on or after the date specified as input.
     def getActivitiesStartedAfter(self, date: str) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
             query = f"""
-            SELECT * FROM (SELECT internalId, objectId, startDate
-            FROM Acquisition
-            UNION
-            SELECT internalId, objectId, startDate 
-            FROM Exporting
-            UNION
-            SELECT  internalId, objectId, startDate
-            FROM Modelling
-            UNION
-            SELECT internalId, objectId, startDate
-            FROM Optimising
-            UNION
-            SELECT internalId, objectId, startDate
-            FROM Processing) AS subquery
+                SELECT * 
+                FROM (
+                SELECT *
+                FROM Acquisition
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Exporting
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Modelling
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Optimising
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Processing
+            ) AS subquery
             WHERE startDate >= "{date}"
-            ORDER BY objectId;"""
+            ORDER BY objectId;
+            """
 
             df = read_sql(query, con)
         return df
 
+    # returns a data frame with all the activities that ended either exactly on or before the date specified as input.
     def getActivitiesEndedBefore(self, date: str) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
             query = f"""
-            SELECT * FROM (SELECT internalId, objectId, endDate
-            FROM Acquisition
-            UNION
-            SELECT internalId, objectId, endDate 
-            FROM Exporting
-            UNION
-            SELECT  internalId, objectId, endDate 
-            FROM Modelling
-            UNION
-            SELECT internalId, objectId, endDate 
-            FROM Optimising
-            UNION
-            SELECT internalId, objectId, endDate 
-            FROM Processing) AS subquery
+            SELECT 
+            * FROM (
+                SELECT *
+                FROM Acquisition
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Exporting
+                UNION
+                SELECT {self.all_cols_null_tech}  
+                FROM Modelling
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Optimising
+                UNION
+                SELECT {self.all_cols_null_tech} 
+                FROM Processing
+            ) AS subquery
             WHERE endDate <= "{date}"
-            ORDER BY objectId;"""
+            ORDER BY objectId;
+            """
 
             df = read_sql(query, con)
         return df
 
+    # returns a data frame with all the acquisitions that have, as a technique used, any that matches (even partially) with the input string.
     def getAcquisitionsByTechnique(self, partialName: str) -> DataFrame:
         with connect(self.getDbPathOrUrl()) as con:
             query = f"""

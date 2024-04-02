@@ -301,10 +301,11 @@ class QueryHandler(Handler):
         if ":" in id:
             query += (
                 """
-                SELECT ?name
+                SELECT ?uri ?name
                 WHERE {
                     ?uri schema:identifier "%s" .
                     ?uri schema:name ?name .
+                    ?uri schema:identifier ?id .
                 }
                 """%id
             )
@@ -314,7 +315,7 @@ class QueryHandler(Handler):
                 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                 PREFIX github: <https://breaking-data.github.io/Data-Science-Project/>
 
-                SELECT ?type ?title ?date ?owner ?place ?author
+                SELECT ?obj ?type ?title ?date ?owner ?place ?author
                 WHERE {
                 ?obj schema:identifier "%s" .
                 ?obj rdf:type ?type .
@@ -389,9 +390,9 @@ class MetadataQueryHandler(QueryHandler):
         query = (
             self.query_header
             + """
-        SELECT ?name ?id
+        SELECT ?uri ?name ?id
         WHERE {
-            FILTER (?obj = %s)
+            ?obj schema:identifier "%s" .
             ?obj schema:author ?uri .
             ?uri schema:name ?name .
           	?uri schema:identifier ?id .
@@ -408,16 +409,17 @@ class MetadataQueryHandler(QueryHandler):
         query = (
             self.query_header
             + """
-        SELECT ?id ?title ?date ?owner ?place
+        SELECT ?uri ?type ?id ?title ?date ?owner ?place
         WHERE {
-            ?uri schema:author %s .
+            ?uri schema:author ?author .
+            ?author schema:identifier "%s" .
             ?uri rdf:type ?type .
             ?uri schema:identifier ?id .
             ?uri schema:title ?title .
             ?uri schema:dateCreated ?date .
             ?uri github:owner ?owner .
             ?uri schema:itemLocation ?place .
-}
+        }
         """
             % personId
         )

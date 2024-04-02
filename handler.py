@@ -371,10 +371,12 @@ class MetadataQueryHandler(QueryHandler):
             FILTER (?o != schema:Person)
             ?uri schema:identifier ?id .
             ?uri schema:title ?title .
-            ?uri schema:dateCreated ?date .
             ?uri github:owner ?owner .
             ?uri schema:itemLocation ?place .
-            ?uri schema:author ?author .  
+            OPTIONAL {
+                ?uri schema:author ?author .
+                ?uri schema:dateCreated ?date .
+            }
         }
         """
         )

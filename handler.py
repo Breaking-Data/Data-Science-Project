@@ -319,10 +319,12 @@ class QueryHandler(Handler):
                 ?obj schema:identifier "%s" .
                 ?obj rdf:type ?type .
                 ?obj schema:title ?title .
-                ?obj schema:dateCreated ?date .
                 ?obj github:owner ?owner .
                 ?obj schema:itemLocation ?place .
-                ?obj schema:author ?author .  
+                OPTIONAL {
+                    ?obj schema:author ?author .
+                    ?obj schema:dateCreated ?date .
+                    }
                 }
                 """%id
             )

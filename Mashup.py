@@ -54,15 +54,16 @@ class BasicMashup(object):
         pass
 
     def getActivitiesByResponsiblePerson(self, name: str) -> list[Activity]: #Romolo
+        
         pass
 
     def getActivitiesUsingTool(self) -> list[Activity]: #Simone
         pass
 
-    def getActivitiesStartedAfter(self) -> list[Activity]: #Romolo
+    def getActivitiesStartedAfter(self, date: str) -> list[Activity]: #Romolo
         pass
 
-    def getActivitiesEndedBefore(self) -> list[Activity]: #Pietro
+    def getActivitiesEndedBefore(self, date: str) -> list[Activity]: #Pietro
         pass
 
     def getAcquisitionsByTechnique(self) -> list[Acquisition]: #Ludovica

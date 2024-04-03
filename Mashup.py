@@ -2,9 +2,9 @@ from handler import MetadataQueryHandler, ProcessDataQueryHandler
 from cultural_objects import *
 
 class BasicMashup(object):
-    def __init__(self, metadataQuery: list[MetadataQueryHandler] = [], processQuery: list[ProcessDataQueryHandler] = []) -> None:
-        self.metadataQuery = metadataQuery
-        self.processQuery = processQuery        
+    def __init__(self) -> None:
+        self.metadataQuery = list()
+        self.processQuery = list()    
 
     def cleanMetadataHandlers(self) -> bool: #Romolo
         self.metadataQuery = []
@@ -15,9 +15,9 @@ class BasicMashup(object):
         return len(self.processQuery) == 0
             
     def addMetadataHandler(self, handler: MetadataQueryHandler) -> bool: #Simone
-        len_processQuery = len(self.processQuery)
-        self.processQuery.append(handler)
-        return len_processQuery == (len(self.processQuery) + 1)
+        len_metadataQuery = len(self.metadataQuery)
+        self.metadataQuery.append(handler)
+        return len(self.metadataQuery) == len_metadataQuery + 1
 
     def addProcessHandler(self) -> bool: #Ludovica
         pass

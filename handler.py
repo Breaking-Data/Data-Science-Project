@@ -307,7 +307,8 @@ class QueryHandler(Handler):
                     ?uri schema:name ?name .
                     ?uri schema:identifier ?id .
                 }
-                """%id
+                """
+                % id
             )
         else:
             query += (
@@ -327,7 +328,8 @@ class QueryHandler(Handler):
                     ?obj schema:dateCreated ?date .
                     }
                 }
-                """%id
+                """
+                % id
             )
         df_entity = get(endpoint, query, True)
 

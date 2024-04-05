@@ -5,6 +5,7 @@ from sqlite3 import connect
 from rdflib import Graph, URIRef, RDF, Namespace, Literal
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 from sparql_dataframe import get
+from pprint import pprint as pp
 
 
 class Handler(object):
@@ -256,6 +257,7 @@ class MetadataUploadHandler(UploadHandler):
             if row["Title"] != "":
                 metadata_graph.add((subj, title, Literal(row["Title"])))
             if row["Date"] != "":
+                print(row["Date"])
                 metadata_graph.add((subj, date, Literal(row["Date"])))
             if row["Owner"] != "":
                 metadata_graph.add((subj, owner, Literal(row["Owner"])))
@@ -368,10 +370,10 @@ class MetadataQueryHandler(QueryHandler):
             + """
             PREFIX github: <https://breaking-data.github.io/Data-Science-Project/>
 
-        SELECT ?uri ?id ?title ?date ?owner ?place ?author
+        SELECT ?uri ?type ?id ?title ?date ?owner ?place ?author
         WHERE {
-            ?uri rdf:type ?o .
-            FILTER (?o != schema:Person)
+            ?uri rdf:type ?type .
+            FILTER (?type != schema:Person)
             ?uri schema:identifier ?id .
             ?uri schema:title ?title .
             ?uri github:owner ?owner .
@@ -381,6 +383,7 @@ class MetadataQueryHandler(QueryHandler):
                 ?uri schema:dateCreated ?date .
             }
         }
+       
         """
         )
         df_cultural_heritage_objects = get(endpoint, query, True)

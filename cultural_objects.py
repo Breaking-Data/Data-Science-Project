@@ -22,6 +22,7 @@ class CulturalHeritageObject(IdentifiableEntity):
         self.owner = owner
         self.place = place
         self.hasAuthor = set()
+        # why???
         for author in hasAuthor:
             self.hasAuthor.add(author)
 

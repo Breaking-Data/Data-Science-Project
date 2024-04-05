@@ -257,7 +257,6 @@ class MetadataUploadHandler(UploadHandler):
             if row["Title"] != "":
                 metadata_graph.add((subj, title, Literal(row["Title"])))
             if row["Date"] != "":
-                print(row["Date"])
                 metadata_graph.add((subj, date, Literal(row["Date"])))
             if row["Owner"] != "":
                 metadata_graph.add((subj, owner, Literal(row["Owner"])))
@@ -327,6 +326,8 @@ class QueryHandler(Handler):
                 ?obj schema:itemLocation ?place .
                 OPTIONAL {
                     ?obj schema:author ?author .
+                    }
+                OPTIONAL { 
                     ?obj schema:dateCreated ?date .
                     }
                 }
@@ -380,8 +381,12 @@ class MetadataQueryHandler(QueryHandler):
             ?uri schema:itemLocation ?place .
             OPTIONAL {
                 ?uri schema:author ?author .
-                ?uri schema:dateCreated ?date .
+                
             }
+            OPTIONAL {
+                ?uri schema:dateCreated ?date .
+                
+            }        
         }
        
         """

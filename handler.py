@@ -249,7 +249,7 @@ class MetadataUploadHandler(UploadHandler):
                 elif row["Type"] == "Model":
                     metadata_graph.add((subj, RDF.type, Model))
 
-                else:
+                elif row["Type"] == "Map":
                     metadata_graph.add((subj, RDF.type, Map))
 
             if row["Id"] != "":

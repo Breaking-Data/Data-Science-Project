@@ -1,5 +1,7 @@
 from handler import MetadataQueryHandler, ProcessDataQueryHandler
 from cultural_objects import *
+import importlib
+import pandas as pd
 
 
 class BasicMashup(object):
@@ -48,7 +50,68 @@ class BasicMashup(object):
         return people
 
     def getAllCulturalHeritageObjects(self) -> list[CulturalHeritageObject]:  # Ludovica
-        pass
+        cultural_objects = []
+        # import module to be used later
+        module = importlib.import_module("cultural_objects")
+
+        for metadata in self.metadataQuery:
+            # cultural objects dataframe
+            df_objects = metadata.getAllCulturalHeritageObjects().sort_values(by="id")
+            # people dataframe
+            df_people = metadata.getAllPeople().sort_values(by="id")
+
+            # merge the two dataframes
+            df_merged = pd.merge(
+                df_objects,
+                df_people.rename(
+                    columns={
+                        "uri": "author_uri",
+                        "name": "author_name",
+                        "id": "author_id",
+                    }
+                ),
+                left_on="author",
+                right_on="author_uri",
+                how="left",
+            )
+
+            for index, row in df_merged.iterrows():
+                # info about the object
+                ob_id = row.id
+                title = row.title.strip()
+                date = row.date if not pd.isna(row.date) else None
+                owner = row.owner
+                place = row.place
+
+                # info about the author
+                authors = set()
+                # check if an author exists
+                if not pd.isna(row.author_id):
+                    author_id = row.author_id
+                    author_name = row.author_name.strip()
+                    author = Person(id=author_id, name=author_name)
+                    authors.add(author)
+
+                # get the subclass name for the object
+                object_subclass = row.type.removeprefix(
+                    "https://breaking-data.github.io/Data-Science-Project/"
+                ).removeprefix("http://schema.org/")
+
+                # import the module and get the class
+                subclass = getattr(module, object_subclass)
+                instance = subclass(
+                    id=ob_id,
+                    title=title,
+                    date=date,
+                    owner=owner,
+                    place=place,
+                    hasAuthor=authors,
+                )
+
+                # add the cultural object to the list
+                cultural_objects.append(instance)
+
+        return cultural_objects
 
     def getAuthorsOfCulturalHeritageObject(
         self, objectId: str

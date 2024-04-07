@@ -1,5 +1,5 @@
 from pandas import DataFrame, read_sql
-from handler import Handler, QueryHandler, MetadataQueryHandler
+from handler import *
 from sqlite3 import connect
 import pandas as pd
 from mashup import BasicMashup

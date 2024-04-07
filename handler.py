@@ -222,34 +222,34 @@ class MetadataUploadHandler(UploadHandler):
             subj = URIRef(base_url + local_id)
 
             if row["Type"] != "":
-                if row["Type"] == "Nautical chart":
+                if row["Type"].lower() == "nautical chart":
                     metadata_graph.add((subj, RDF.type, NauticalChart))
 
-                elif row["Type"] == "Manuscript Plate":
+                elif row["Type"].lower() == "manuscript plate":
                     metadata_graph.add((subj, RDF.type, ManuscriptPlate))
 
-                elif row["Type"] == "Manuscript Volume":
+                elif row["Type"].lower() == "manuscript volume":
                     metadata_graph.add((subj, RDF.type, ManuscriptVolume))
 
-                elif row["Type"] == "Printed Volume":
+                elif row["Type"].lower() == "printed volume":
                     metadata_graph.add((subj, RDF.type, PrintedVolume))
 
-                elif row["Type"] == "Printed Material":
+                elif row["Type"].lower() == "printed material":
                     metadata_graph.add((subj, RDF.type, PrintedMaterial))
 
-                elif row["Type"] == "Herbarium":
+                elif row["Type"].lower() == "herbarium":
                     metadata_graph.add((subj, RDF.type, Herbarium))
 
-                elif row["Type"] == "Specimen":
+                elif row["Type"].lower() == "specimen":
                     metadata_graph.add((subj, RDF.type, Specimen))
 
-                elif row["Type"] == "Painting":
+                elif row["Type"].lower() == "painting":
                     metadata_graph.add((subj, RDF.type, Painting))
 
-                elif row["Type"] == "Model":
+                elif row["Type"].lower() == "model":
                     metadata_graph.add((subj, RDF.type, Model))
 
-                elif row["Type"] == "Map":
+                elif row["Type"].lower() == "map":
                     metadata_graph.add((subj, RDF.type, Map))
 
             if row["Id"] != "":

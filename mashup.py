@@ -116,12 +116,30 @@ class BasicMashup(object):
     def getAuthorsOfCulturalHeritageObject(
         self, objectId: str
     ) -> list[Person]:  # Pietro
-        pass
+        authors = []
+        objects = self.getAllCulturalHeritageObjects()
+        for ob in objects:
+            if ob.getId() == objectId:
+                authors_list = ob.getAuthors()
+                for author in authors_list:
+                    authors.append (author)
+                
+        return authors
 
     def getCulturalHeritageObjectsAuthoredBy(
-        self,
+        self, AuthorId: str
     ) -> list[CulturalHeritageObject]:  # Pietro
-        pass
+        objects = []
+        all_objects = self.getAllCulturalHeritageObjects()
+        for ob in all_objects:
+            authors = ob.getAuthors()
+            author_ids = []
+            for author in authors:
+                author_ids.append(author.getId())
+            if AuthorId in author_ids:
+                objects.append(ob)
+
+        return objects
 
     def getAllActivities(self) -> list[Activity]:  # Simone
         pass

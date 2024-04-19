@@ -103,7 +103,7 @@ class ProcessDataUploadHandler(UploadHandler):
                         table.to_sql(
                             f"{table_name}",
                             con,
-                            if_exists="replace",
+                            if_exists="append",
                             index=False,
                             dtype=data_type_dict,
                         )

@@ -178,7 +178,7 @@ class AdvancedMashup(BasicMashup):
     def getObjectsHandledByResponsiblePerson(self, partialName: str) -> list[CulturalHeritageObject]:
         pass
 
-    def getObjectsHanledByResponsibleInstitution(self, partialName: str) -> list[CulturalHeritageObject]:
+    def getObjectsHandledByResponsibleInstitution(self, partialName: str) -> list[CulturalHeritageObject]:
         pass
 
     def getAuthorsOfObjectsAcquiredInTimeFrame(self, start: str, end: str) -> list[Person]:

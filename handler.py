@@ -186,35 +186,48 @@ class MetadataUploadHandler(UploadHandler):
         # populating the graph with all the people
         people_authority_ids = dict()
         people_object_ids = dict()
+        people_number = 0
         for idx, row in metadata_frame.iterrows():
+
             author = row["Author"]
+            
             if author != "":
+                list_of_authors = author.split(";")
+                for a in list_of_authors:
+                    a_stripped = a.strip()
+                    # Here I'm isolating the authority identifier and the name of the author
+                    for i, c in enumerate(a_stripped):
+                        if c == "(":
+                            indx_for_split = i
 
-                # Here I'm isolating the authority identifier and the name of the author
-                for i, c in enumerate(author):
-                    if c == "(":
-                        indx_for_split = i
+                    person_name = a_stripped[:indx_for_split - 1]
+                    person_id = a_stripped[(indx_for_split + 1) : -1]
+                    object_id = row["Id"]
 
-                person_name = author[:indx_for_split]
-                person_id = author[(indx_for_split + 1) : -1]
-                object_id = row["Id"]
+                    if person_id in people_authority_ids.keys():
+                        person_uri = people_authority_ids[person_id]
+                        if object_id in people_object_ids.keys():
+                            people_object_ids[object_id].append(person_uri)
+                        else:
+                            people_object_ids[object_id] = [person_uri]
 
-                if person_id in people_authority_ids.keys():
-                    person_uri = people_authority_ids[person_id]
-                    people_object_ids[object_id] = person_uri
+                    else:
 
-                else:
+                        local_id = "person-" + str(people_number)
+                        subj = URIRef(base_url + local_id)
 
-                    local_id = "person-" + str(idx)
-                    subj = URIRef(base_url + local_id)
+                        # adding to the graph the type person, the identifier and the name of the person
+                        metadata_graph.add((subj, RDF.type, Person))
+                        metadata_graph.add((subj, identifier, Literal(person_id)))
+                        metadata_graph.add((subj, name, Literal(person_name)))
 
-                    # adding to the graph the type person, the identifier and the name of the person
-                    metadata_graph.add((subj, RDF.type, Person))
-                    metadata_graph.add((subj, identifier, Literal(person_id)))
-                    metadata_graph.add((subj, name, Literal(person_name)))
+                        people_authority_ids[person_id] = subj
+                        if object_id in people_object_ids.keys():
+                            people_object_ids[object_id].append(subj)
+                        else:
+                            people_object_ids[object_id] = [subj]
 
-                    people_authority_ids[person_id] = subj
-                    people_object_ids[object_id] = subj
+                        people_number += 1
 
         # populating the graph with all the cultural heritage objects
         for idx, row in metadata_frame.iterrows():
@@ -263,7 +276,9 @@ class MetadataUploadHandler(UploadHandler):
             if row["Place"] != "":
                 metadata_graph.add((subj, place, Literal(row["Place"])))
             if row["Author"] != "":
-                metadata_graph.add((subj, hasAuthor, people_object_ids[row["Id"]]))
+                authors = people_object_ids[row["Id"]]
+                for a in authors:
+                    metadata_graph.add((subj, hasAuthor, a))
 
         # sending the graph to the database
         store = SPARQLUpdateStore()

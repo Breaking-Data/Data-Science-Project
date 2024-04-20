@@ -147,18 +147,39 @@ class BasicMashup(object):
     def getActivitiesByResponsibleInstitution(self) -> list[Activity]:  # Ludovica
         pass
 
-    def getActivitiesByResponsiblePerson(self, name: str) -> list[Activity]:  # Romolo
-
-        pass
+    def getActivitiesByResponsiblePerson(self, partialName: str) -> list[Activity]:  # Romolo
+        activities = []
+        for activity in self.getAllActivities():
+            if partialName in activity.getResponsiblePerson():
+                activities.append(activity)
+        return activities
 
     def getActivitiesUsingTool(self) -> list[Activity]:  # Simone
         pass
 
     def getActivitiesStartedAfter(self, date: str) -> list[Activity]:  # Romolo
-        pass
+        activities = []
+        for activity in self.getAllActivities():
+            if activity.getstartDate() >= date:
+                activities.append(activity)
+        return activities
 
     def getActivitiesEndedBefore(self, date: str) -> list[Activity]:  # Pietro
         pass
 
     def getAcquisitionsByTechnique(self) -> list[Acquisition]:  # Ludovica
+        pass
+
+
+class AdvancedMashup(BasicMashup):
+    def getActivitiesOnObjectsAuthoredBy(self, personId: str) -> list[Activity]:
+        pass
+
+    def getObjectsHandledByResponsiblePerson(self, partialName: str) -> list[CulturalHeritageObject]:
+        pass
+
+    def getObjectsHanledByResponsibleInstitution(self, partialName: str) -> list[CulturalHeritageObject]:
+        pass
+
+    def getAuthorsOfObjectsAcquiredInTimeFrame(self, start: str, end: str) -> list[Person]:
         pass

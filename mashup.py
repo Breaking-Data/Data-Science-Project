@@ -165,7 +165,11 @@ class BasicMashup(object):
         return activities
 
     def getActivitiesEndedBefore(self, date: str) -> list[Activity]:  # Pietro
-        pass
+        activities = []
+        for activity in self.getAllActivities():
+            if activity.getendDate() <= date:
+                activities.append(activity)
+        return activities
 
     def getAcquisitionsByTechnique(self) -> list[Acquisition]:  # Ludovica
         pass

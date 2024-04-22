@@ -192,20 +192,16 @@ class AdvancedMashup(BasicMashup):
     def getActivitiesOnObjectsAuthoredBy(self, personId: str) -> list[Activity]:
         pass
 
-    def getObjectsHandledByResponsiblePerson(
-        self, partialName: str
-    ) -> list[CulturalHeritageObject]:
+    def getObjectsHandledByResponsiblePerson(self, partialName: str) -> list[CulturalHeritageObject]:
         pass
 
-    def getObjectsHandledByResponsibleInstitution(
-        self, partialName: str
-    ) -> list[CulturalHeritageObject]:
-        pass
+    def getObjectsHandledByResponsibleInstitution(self, partialName: str) -> list[CulturalHeritageObject]:
+        objects = set()
+        for activity in self.getActivitiesByResponsibleInstitution(partialName):
+            objects.add(activity.refersTo())
+        return list(objects)
 
-    def getAuthorsOfObjectsAcquiredInTimeFrame(
-        self, start: str, end: str
-    ) -> list[Person]:
-        
+    def getAuthorsOfObjectsAcquiredInTimeFrame(self, start: str, end: str) -> list[Person]:        
         started_from = self.getActivitiesStartedAfter(self, start)
         activities_in_timeframe = []
         for activity in started_from:

@@ -82,7 +82,7 @@ class ProcessDataUploadHandler(UploadHandler):
                     df["object id"] = ob_ids
                     df[column_to_fill] = content
 
-            # correcting the tables and the columns names and eliminate possible duplicates
+            # correcting the tables and the columns names 
             table_dict = {}
             for df_name, df in df_dict.items():
                 table_dict[df_name[0].upper() + df_name[1:]] = df

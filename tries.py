@@ -7,10 +7,10 @@ from cultural_objects import *
 
 
 metadata_qh = MetadataQueryHandler()
-metadata_qh.setDbPathOrUrl("http://10.201.26.233:9999/blazegraph/")
+metadata_qh.setDbPathOrUrl("http://10.201.16.211:9999/blazegraph/")
 
 
 mashup = BasicMashup()
 mashup.addMetadataHandler(metadata_qh)
 
-print(metadata_qh.getAllCulturalHeritageObjects().type)
+print(mashup.getAllCulturalHeritageObjects()[3].getAuthors())

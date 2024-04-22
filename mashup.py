@@ -57,25 +57,8 @@ class BasicMashup(object):
         for metadata in self.metadataQuery:
             # cultural objects dataframe
             df_objects = metadata.getAllCulturalHeritageObjects().sort_values(by="id")
-            # people dataframe
-            df_people = metadata.getAllPeople().sort_values(by="id")
 
-            # merge the two dataframes
-            df_merged = pd.merge(
-                df_objects,
-                df_people.rename(
-                    columns={
-                        "uri": "author_uri",
-                        "name": "author_name",
-                        "id": "author_id",
-                    }
-                ),
-                left_on="author",
-                right_on="author_uri",
-                how="left",
-            )
-
-            for index, row in df_merged.iterrows():
+            for index, row in df_objects.iterrows():
                 # info about the object
                 ob_id = row.id
                 title = row.title.strip()
@@ -84,13 +67,13 @@ class BasicMashup(object):
                 place = row.place
 
                 # info about the author
-                authors = set()
-                # check if an author exists
-                if not pd.isna(row.author_id):
-                    author_id = row.author_id
-                    author_name = row.author_name.strip()
+                authors = []
+                df_authors = metadata.getAuthorsOfCulturalHeritageObject(f"{ob_id}")
+                for index, authors_row in df_authors.iterrows():
+                    author_id = authors_row.id
+                    author_name = authors_row.author_name.strip()
                     author = Person(id=author_id, name=author_name)
-                    authors.add(author)
+                    authors.append(author)
 
                 # get the subclass name for the object
                 object_subclass = row.type.removeprefix(
@@ -122,8 +105,8 @@ class BasicMashup(object):
             if ob.getId() == objectId:
                 authors_list = ob.getAuthors()
                 for author in authors_list:
-                    authors.append (author)
-                
+                    authors.append(author)
+
         return authors
 
     def getCulturalHeritageObjectsAuthoredBy(
@@ -147,7 +130,9 @@ class BasicMashup(object):
     def getActivitiesByResponsibleInstitution(self) -> list[Activity]:  # Ludovica
         pass
 
-    def getActivitiesByResponsiblePerson(self, partialName: str) -> list[Activity]:  # Romolo
+    def getActivitiesByResponsiblePerson(
+        self, partialName: str
+    ) -> list[Activity]:  # Romolo
         activities = []
         for activity in self.getAllActivities():
             if partialName in activity.getResponsiblePerson():
@@ -179,11 +164,17 @@ class AdvancedMashup(BasicMashup):
     def getActivitiesOnObjectsAuthoredBy(self, personId: str) -> list[Activity]:
         pass
 
-    def getObjectsHandledByResponsiblePerson(self, partialName: str) -> list[CulturalHeritageObject]:
+    def getObjectsHandledByResponsiblePerson(
+        self, partialName: str
+    ) -> list[CulturalHeritageObject]:
         pass
 
-    def getObjectsHandledByResponsibleInstitution(self, partialName: str) -> list[CulturalHeritageObject]:
+    def getObjectsHandledByResponsibleInstitution(
+        self, partialName: str
+    ) -> list[CulturalHeritageObject]:
         pass
 
-    def getAuthorsOfObjectsAcquiredInTimeFrame(self, start: str, end: str) -> list[Person]:
+    def getAuthorsOfObjectsAcquiredInTimeFrame(
+        self, start: str, end: str
+    ) -> list[Person]:
         pass

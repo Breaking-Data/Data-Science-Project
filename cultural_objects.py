@@ -21,10 +21,7 @@ class CulturalHeritageObject(IdentifiableEntity):
         self.date = date
         self.owner = owner
         self.place = place
-        self.hasAuthor = set()
-        # why???
-        for author in hasAuthor:
-            self.hasAuthor.add(author)
+        self.hasAuthor = hasAuthor
 
         super().__init__(id)
 
@@ -41,11 +38,7 @@ class CulturalHeritageObject(IdentifiableEntity):
         return self.place
 
     def getAuthors(self):
-        result = []
-        for author in self.hasAuthor:
-            result.append(author)
-        result.sort()
-        return result
+        return self.hasAuthor
 
 
 class NauticalChart(CulturalHeritageObject):

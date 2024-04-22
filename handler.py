@@ -190,7 +190,7 @@ class MetadataUploadHandler(UploadHandler):
         for idx, row in metadata_frame.iterrows():
 
             author = row["Author"]
-            
+
             if author != "":
                 list_of_authors = author.split(";")
                 for a in list_of_authors:
@@ -200,7 +200,7 @@ class MetadataUploadHandler(UploadHandler):
                         if c == "(":
                             indx_for_split = i
 
-                    person_name = a_stripped[:indx_for_split - 1]
+                    person_name = a_stripped[: indx_for_split - 1]
                     person_id = a_stripped[(indx_for_split + 1) : -1]
                     object_id = row["Id"]
 
@@ -415,11 +415,11 @@ class MetadataQueryHandler(QueryHandler):
         query = (
             self.query_header
             + """
-        SELECT ?uri ?name ?id
+        SELECT ?uri ?author_name ?id
         WHERE {
             ?obj schema:identifier "%s" .
             ?obj schema:author ?uri .
-            ?uri schema:name ?name .
+            ?uri schema:name ?author_name .
           	?uri schema:identifier ?id .
         }
         """

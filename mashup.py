@@ -37,7 +37,7 @@ class BasicMashup(object):
         pass
 
     def getAllPeople(self) -> list[Person]:  # Romolo
-        people = []
+        people = dict()
         for metaGrinder in self.metadataQuery:
             df_people = metaGrinder.getAllPeople()
 
@@ -45,12 +45,12 @@ class BasicMashup(object):
                 person_name = row["name"]
                 person_id = row["id"]
                 person = Person(person_id, person_name)
-                people.append(person)
+                people[person_id] = person
 
-        return people
+        return list(people.values())
 
     def getAllCulturalHeritageObjects(self) -> list[CulturalHeritageObject]:  # Ludovica
-        cultural_objects = []
+        cultural_objects = dict()
         # import module to be used later
         module = importlib.import_module("cultural_objects")
 
@@ -92,13 +92,11 @@ class BasicMashup(object):
                 )
 
                 # add the cultural object to the list
-                cultural_objects.append(instance)
+                cultural_objects[ob_id] = instance
 
-        return cultural_objects
+        return list(cultural_objects.values())
 
-    def getAuthorsOfCulturalHeritageObject(
-        self, objectId: str
-    ) -> list[Person]:  # Pietro
+    def getAuthorsOfCulturalHeritageObject(self, objectId: str) -> list[Person]:  # Pietro
         authors = []
         objects = self.getAllCulturalHeritageObjects()
         for ob in objects:
@@ -109,9 +107,7 @@ class BasicMashup(object):
 
         return authors
 
-    def getCulturalHeritageObjectsAuthoredBy(
-        self, AuthorId: str
-    ) -> list[CulturalHeritageObject]:  # Pietro
+    def getCulturalHeritageObjectsAuthoredBy(self, AuthorId: str) -> list[CulturalHeritageObject]:  # Pietro
         objects = []
         all_objects = self.getAllCulturalHeritageObjects()
         for ob in all_objects:
@@ -125,7 +121,33 @@ class BasicMashup(object):
         return objects
 
     def getAllActivities(self) -> list[Activity]:  # Simone
-        pass
+        activities = dict()
+        for processGrinder in self.processQuery:
+            df_process = processGrinder.getAllActivities()
+            for idx, row in df_process.iterrows():
+                id = row["objectId"]
+                object = self.getEntityById(id)
+                institute = row["responsibleInstitute"]
+                person = row["responsiblePerson"]
+                tool = row["tool"]
+                start = row["startDate"]
+                end = row["endDate"]
+                internal = row["internalId"]
+                if "acquisition" in internal:
+                    technique = row["technique"]
+                    activity = Acquisition(technique, institute, object, person, tool, start, end)
+                elif "processing" in internal:
+                    activity = Processing(institute, object, person, tool, start, end)
+                elif "exporting" in internal:
+                    activity = Exporting(institute, object, person, tool, start, end)
+                elif "modelling" in internal:
+                    activity = Modelling(institute, object, person, tool, start, end)
+                else:
+                    activity = Optimising(institute, object, person, tool, start, end)
+                
+                activities[id] = activity
+
+        return list(activities.values())
 
     def getActivitiesByResponsibleInstitution(self) -> list[Activity]:  # Ludovica
         pass
@@ -139,8 +161,14 @@ class BasicMashup(object):
                 activities.append(activity)
         return activities
 
-    def getActivitiesUsingTool(self) -> list[Activity]:  # Simone
-        pass
+    def getActivitiesUsingTool(self, partialName) -> list[Activity]:  # Simone
+        activities = []
+        for activity in self.getAllActivities():
+            for tl in activity.getTools():
+                if partialName in tl:
+                    activities.append(activity)
+                    break
+        return activities
 
     def getActivitiesStartedAfter(self, date: str) -> list[Activity]:  # Romolo
         activities = []

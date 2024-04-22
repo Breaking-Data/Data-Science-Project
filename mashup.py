@@ -205,4 +205,26 @@ class AdvancedMashup(BasicMashup):
     def getAuthorsOfObjectsAcquiredInTimeFrame(
         self, start: str, end: str
     ) -> list[Person]:
-        pass
+        
+        started_from = self.getActivitiesStartedAfter(self, start)
+        activities_in_timeframe = []
+        for activity in started_from:
+            if activity.getendDate() <= end:
+                activities_in_timeframe.append(activity)
+
+        acqisitions_in_timeframe = []
+        for activity in activities_in_timeframe:
+            if isinstance(activity, Acquisition):
+                acqisitions_in_timeframe.append(activity)
+
+        objects = []
+        for acquisition in acqisitions_in_timeframe:
+            objects.append(acquisition.refersTo())
+        
+        authors = []
+        for object in objects:
+            authors.append(object.getAuthors())
+        
+
+        return authors
+

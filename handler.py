@@ -37,54 +37,57 @@ class ProcessDataUploadHandler(UploadHandler):
 
     def pushDataToDb(self, json_file: str) -> bool:
 
-        # create a big datafame representing the entire json file.
+        # creating a dataframe with the activities as columns and the objects as rows  
         with open(json_file) as f:
             list_of_dict = load(f)
             keys = list_of_dict[0].keys()
             j_df = DataFrame(list_of_dict, columns=keys)
-
-            # create empty dataframes (with the correct column names) for each activity.
+            j_df = j_df.drop_duplicates(subset='object id', keep='first')#removing all duplicates from the dataframe
+            
+            # creating empty dataframes with the correct column names for each activity.
             df_dict = {}
-            for column_name in j_df.columns.to_list()[1:]:
+            for column_name in j_df.columns.to_list():# iterating over the columns to cretate the activity dataframes
                 cell = j_df.loc[0, column_name]
-
                 if type(cell) == dict:
                     keys = cell.keys()
                     df_dict[column_name] = DataFrame(columns=keys)
-                    df_dict[column_name].insert(0, "internal Id", [])
+                    df_dict[column_name]["object id"] = []# adding the object id column
+                    df_dict[column_name].insert(0, "internal Id", [])# adding the internal id column
 
-            # populate each empty dataframe with the correct information from j_df
+            # populating each empty activity dataframe with the correct information from j_df
             for df_name, df in df_dict.items():
-
-                for column_to_fill in df.columns.to_list()[1:]:
-                    unic_identifiers = []
+                for column_to_fill in df.columns.to_list()[1:-1]:
+                    int_ids = []
                     content = []
+                    ob_ids = []
                     num_rows = len(j_df)
                     i = 0
-                    id_counter = 1
-
                     while i < num_rows:
+                        ob_id = j_df.loc[i]["object id"]
                         cell = j_df.loc[i][df_name]
                         column_value = cell[column_to_fill]
+
                         if type(column_value) == list:
                             column_value = ", ".join(column_value)
-                        if column_value == "":
-                            column_value = None
+                        elif column_value == "":
+                            column_value = None   
+
+                        int_ids.append(f"{df_name}-{ob_id}")
+                        ob_ids.append(ob_id)
                         content.append(column_value)
-                        unic_identifiers.append(f"{df_name}-{id_counter}")
+
                         i += 1
-                        id_counter += 1
 
+                    df["internal Id"] = int_ids  
+                    df["object id"] = ob_ids
                     df[column_to_fill] = content
-                    df[df.columns[0]] = unic_identifiers
-                    df["object id"] = j_df[j_df.columns[0]]
 
-            # correct the tables and the columns names
+            # correcting the tables and the columns names and eliminate possible duplicates
             table_dict = {}
             for df_name, df in df_dict.items():
                 table_dict[df_name[0].upper() + df_name[1:]] = df
+                
                 new_columns = []
-
                 for column_name in df.columns.tolist():
                     new_name = column_name.title()
                     new_name = new_name.replace(" ", "")
@@ -92,34 +95,56 @@ class ProcessDataUploadHandler(UploadHandler):
                     new_columns.append(new_name)
                 df.columns = new_columns
 
-            # storing the tables into the relational database
+            # uploading the tables to the database
             with connect(self.dbPathOrUrl) as con:
                 for table_name, table in table_dict.items():
-                    data_type_dict = {}
+                    exists_query = f'SELECT name FROM sqlite_master WHERE type="table" AND name="{table_name}"'
+                    exists = con.execute(exists_query).fetchone()
+                    
+                    if exists: #if the table already exists, if present, the duplictaes get removed and the table is uploaded 
+                        unic_id_col = table.columns[0]
+                        unic_id_query = f'SELECT "{unic_id_col}" FROM "{table_name}"'
+                        unic_ids_db_raw = con.execute(unic_id_query).fetchall()
 
-                    for column in table.columns.to_list():
-                        data_type_dict[f"{column}"] = "string"
-                        con.execute(f"DROP TABLE IF EXISTS {table_name}")
-                        table.to_sql(
-                            f"{table_name}",
-                            con,
-                            if_exists="append",
-                            index=False,
-                            dtype=data_type_dict,
+                        unic_ids_db = set()
+                        for item in unic_ids_db_raw:
+                            unic_ids_db.add(item[0])
+
+                        unic_ids_table = set(table[table.columns.tolist()[0]].tolist())
+                        no_dup_ids = unic_ids_table - unic_ids_db
+                        no_dup_table = table[table["internalId"].isin(no_dup_ids)]
+
+                        no_dup_table.to_sql(
+                        table_name,
+                        con,
+                        if_exists="append",
+                        index=False,
+                        dtype='string'  
                         )
 
-        # check if all the tables are correctly stored into the relational db
-        cursor = con.cursor()
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
-        c = cursor.fetchall()
-        tables_in_db = []
-        for table in c:
-            tables_in_db.append(table[0])
-        tables_in_dict = table_dict.keys()
-        if set(tables_in_dict) == set(tables_in_db):
-            return True
-        else:
-            return False
+                    else:
+                        table.to_sql(
+                        table_name,
+                        con,
+                        if_exists='replace',
+                        index=False
+                        )
+
+            # applying a simple control to verify the correct upload of the tables
+            control_query = "SELECT name FROM sqlite_master WHERE type = 'table'"
+            table_names_db_raw = con.execute(control_query).fetchall()
+            table_names_db = set()
+            for item in table_names_db_raw:
+                table_names_db.add(item[0])
+
+            table_names = set()
+            for table_name, table  in table_dict.items():
+                table_names.add(table_name)
+
+            if table_names_db == table_names:
+                return True
+            else:
+                False
 
 
 # The class for uploading the csv file to a graph database

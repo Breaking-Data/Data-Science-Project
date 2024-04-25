@@ -37,22 +37,32 @@ class ProcessDataUploadHandler(UploadHandler):
 
     def pushDataToDb(self, json_file: str) -> bool:
 
-        # creating a dataframe with the activities as columns and the objects as rows  
+        # creating a dataframe with the activities as columns and the objects as rows
         with open(json_file) as f:
             list_of_dict = load(f)
             keys = list_of_dict[0].keys()
             j_df = DataFrame(list_of_dict, columns=keys)
-            j_df = j_df.drop_duplicates(subset='object id', keep='first')#removing all duplicates from the dataframe
-            
+            j_df = j_df.drop_duplicates(
+                subset="object id", keep="first"
+            )  # removing all duplicates from the dataframe
+
             # creating empty dataframes with the correct column names for each activity.
             df_dict = {}
-            for column_name in j_df.columns.to_list():# iterating over the columns to cretate the activity dataframes
+            for (
+                column_name
+            ) in (
+                j_df.columns.to_list()
+            ):  # iterating over the columns to cretate the activity dataframes
                 cell = j_df.loc[0, column_name]
                 if type(cell) == dict:
                     keys = cell.keys()
                     df_dict[column_name] = DataFrame(columns=keys)
-                    df_dict[column_name]["object id"] = []# adding the object id column
-                    df_dict[column_name].insert(0, "internal Id", [])# adding the internal id column
+                    df_dict[column_name][
+                        "object id"
+                    ] = []  # adding the object id column
+                    df_dict[column_name].insert(
+                        0, "internal Id", []
+                    )  # adding the internal id column
 
             # populating each empty activity dataframe with the correct information from j_df
             for df_name, df in df_dict.items():
@@ -70,7 +80,7 @@ class ProcessDataUploadHandler(UploadHandler):
                         if type(column_value) == list:
                             column_value = ", ".join(column_value)
                         elif column_value == "":
-                            column_value = None   
+                            column_value = None
 
                         int_ids.append(f"{df_name}-{ob_id}")
                         ob_ids.append(ob_id)
@@ -78,15 +88,15 @@ class ProcessDataUploadHandler(UploadHandler):
 
                         i += 1
 
-                    df["internal Id"] = int_ids  
+                    df["internal Id"] = int_ids
                     df["object id"] = ob_ids
                     df[column_to_fill] = content
 
-            # correcting the tables and the columns names 
+            # correcting the tables and the columns names
             table_dict = {}
             for df_name, df in df_dict.items():
                 table_dict[df_name[0].upper() + df_name[1:]] = df
-                
+
                 new_columns = []
                 for column_name in df.columns.tolist():
                     new_name = column_name.title()
@@ -100,8 +110,10 @@ class ProcessDataUploadHandler(UploadHandler):
                 for table_name, table in table_dict.items():
                     exists_query = f'SELECT name FROM sqlite_master WHERE type="table" AND name="{table_name}"'
                     exists = con.execute(exists_query).fetchone()
-                    
-                    if exists: #if the table already exists, if present, the duplictaes get removed and the table is uploaded 
+
+                    if (
+                        exists
+                    ):  # if the table already exists, if present, the duplictaes get removed and the table is uploaded
                         unic_id_col = table.columns[0]
                         unic_id_query = f'SELECT "{unic_id_col}" FROM "{table_name}"'
                         unic_ids_db_raw = con.execute(unic_id_query).fetchall()
@@ -115,20 +127,15 @@ class ProcessDataUploadHandler(UploadHandler):
                         no_dup_table = table[table["internalId"].isin(no_dup_ids)]
 
                         no_dup_table.to_sql(
-                        table_name,
-                        con,
-                        if_exists="append",
-                        index=False,
-                        dtype='string'  
+                            table_name,
+                            con,
+                            if_exists="append",
+                            index=False,
+                            dtype="string",
                         )
 
                     else:
-                        table.to_sql(
-                        table_name,
-                        con,
-                        if_exists='replace',
-                        index=False
-                        )
+                        table.to_sql(table_name, con, if_exists="replace", index=False)
 
             # applying a simple control to verify the correct upload of the tables
             control_query = "SELECT name FROM sqlite_master WHERE type = 'table'"
@@ -138,7 +145,7 @@ class ProcessDataUploadHandler(UploadHandler):
                 table_names_db.add(item[0])
 
             table_names = set()
-            for table_name, table  in table_dict.items():
+            for table_name, table in table_dict.items():
                 table_names.add(table_name)
 
             if table_names_db == table_names:
@@ -478,7 +485,7 @@ class MetadataQueryHandler(QueryHandler):
 
 
 # Process from the JSON Handler
-class ProcessDataQueryHandler(QueryHandler):
+class ProcessDataQueryHandler(QueryHandler):  # Ludovica
     all_cols_null_tech = "internalId, responsibleInstitute, responsiblePerson, NULL AS technique, tool, startDate, endDate, objectId"
 
     # returns a dataframe with all the activities in the database.

@@ -96,7 +96,9 @@ class BasicMashup(object):
 
         return list(cultural_objects.values())
 
-    def getAuthorsOfCulturalHeritageObject(self, objectId: str) -> list[Person]:  # Pietro
+    def getAuthorsOfCulturalHeritageObject(
+        self, objectId: str
+    ) -> list[Person]:  # Pietro
         authors = []
         objects = self.getAllCulturalHeritageObjects()
         for ob in objects:
@@ -107,7 +109,9 @@ class BasicMashup(object):
 
         return authors
 
-    def getCulturalHeritageObjectsAuthoredBy(self, AuthorId: str) -> list[CulturalHeritageObject]:  # Pietro
+    def getCulturalHeritageObjectsAuthoredBy(
+        self, AuthorId: str
+    ) -> list[CulturalHeritageObject]:  # Pietro
         objects = []
         all_objects = self.getAllCulturalHeritageObjects()
         for ob in all_objects:
@@ -121,36 +125,55 @@ class BasicMashup(object):
         return objects
 
     def getAllActivities(self) -> list[Activity]:  # Simone
-        activities = dict()
+        activities = []
         for processGrinder in self.processQuery:
             df_process = processGrinder.getAllActivities()
             for idx, row in df_process.iterrows():
-                id = row["objectId"]
-                object = self.getEntityById(id)
+                object_id = row["objectId"]
+                cultural_object = self.getEntityById(object_id)
                 institute = row["responsibleInstitute"]
                 person = row["responsiblePerson"]
                 tool = row["tool"]
                 start = row["startDate"]
                 end = row["endDate"]
                 internal = row["internalId"]
-                if "acquisition" in internal:
+
+                if "acquisition" in internal.lower():
                     technique = row["technique"]
-                    activity = Acquisition(technique, institute, object, person, tool, start, end)
+                    activity = Acquisition(
+                        technique, institute, cultural_object, person, tool, start, end
+                    )
                 elif "processing" in internal:
-                    activity = Processing(institute, object, person, tool, start, end)
+                    activity = Processing(
+                        institute, cultural_object, person, tool, start, end
+                    )
                 elif "exporting" in internal:
-                    activity = Exporting(institute, object, person, tool, start, end)
+                    activity = Exporting(
+                        institute, cultural_object, person, tool, start, end
+                    )
                 elif "modelling" in internal:
-                    activity = Modelling(institute, object, person, tool, start, end)
+                    activity = Modelling(
+                        institute, cultural_object, person, tool, start, end
+                    )
                 else:
-                    activity = Optimising(institute, object, person, tool, start, end)
-                
-                activities[id] = activity
+                    activity = Optimising(
+                        institute, cultural_object, person, tool, start, end
+                    )
 
-        return list(activities.values())
+                activities.append(activity)
 
-    def getActivitiesByResponsibleInstitution(self) -> list[Activity]:  # Ludovica
-        pass
+        return activities
+
+    def getActivitiesByResponsibleInstitution(
+        self, partialName: str
+    ) -> list[Activity]:  # Ludovica
+        activities = []
+        for activity in self.getAllActivities():
+            resp_inst = activity.getResposibleInstitute()
+            # check if a responsible institute exists and if the input matches it
+            if resp_inst and partialName.lower() in resp_inst.lower():
+                activities.append(activity)
+        return activities
 
     def getActivitiesByResponsiblePerson(
         self, partialName: str
@@ -184,24 +207,41 @@ class BasicMashup(object):
                 activities.append(activity)
         return activities
 
-    def getAcquisitionsByTechnique(self) -> list[Acquisition]:  # Ludovica
-        pass
+    def getAcquisitionsByTechnique(
+        self, partialName: str
+    ) -> list[Acquisition]:  # Ludovica
+        activities = []
+        for activity in self.getAllActivities():
+            if isinstance(activity, Acquisition):
+                tecnique = activity.getTechnique()
+                # check if a technique exists and if the input matches it
+                if tecnique and partialName.lower() in tecnique.lower():
+                    activities.append(activity)
+        return activities
 
 
 class AdvancedMashup(BasicMashup):
-    def getActivitiesOnObjectsAuthoredBy(self, personId: str) -> list[Activity]:
+    def getActivitiesOnObjectsAuthoredBy(
+        self, personId: str
+    ) -> list[Activity]:  # Ludovica
         pass
 
-    def getObjectsHandledByResponsiblePerson(self, partialName: str) -> list[CulturalHeritageObject]:
+    def getObjectsHandledByResponsiblePerson(
+        self, partialName: str
+    ) -> list[CulturalHeritageObject]: # Simone
         pass
 
-    def getObjectsHandledByResponsibleInstitution(self, partialName: str) -> list[CulturalHeritageObject]:
+    def getObjectsHandledByResponsibleInstitution(
+        self, partialName: str
+    ) -> list[CulturalHeritageObject]: # Romolo
         objects = set()
         for activity in self.getActivitiesByResponsibleInstitution(partialName):
             objects.add(activity.refersTo())
         return list(objects)
 
-    def getAuthorsOfObjectsAcquiredInTimeFrame(self, start: str, end: str) -> list[Person]:        
+    def getAuthorsOfObjectsAcquiredInTimeFrame(
+        self, start: str, end: str 
+    ) -> list[Person]: # Pietro
         started_from = self.getActivitiesStartedAfter(self, start)
         activities_in_timeframe = []
         for activity in started_from:
@@ -216,11 +256,9 @@ class AdvancedMashup(BasicMashup):
         objects = []
         for acquisition in acqisitions_in_timeframe:
             objects.append(acquisition.refersTo())
-        
+
         authors = []
         for object in objects:
             authors.append(object.getAuthors())
-        
 
         return authors
-

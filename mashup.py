@@ -33,8 +33,67 @@ class BasicMashup(object):
             and self.processQuery[-1] == handler
         )
 
-    def getEntityById(self, id: str) -> IdentifiableEntity | None:  # Simone
-        pass
+    def getEntityById(self, id) -> IdentifiableEntity | None:  # Simone
+        for meta in self.metadataQuery:
+            entity_dataframe = meta.getById(id)
+            if len(entity_dataframe.index()) != 0:
+                connected_metahandler = meta
+                break
+        if len(entity_dataframe.index()) != 0:
+            return None
+        else:
+            if ":" in id:
+                row = entity_dataframe.loc[0]
+                person_name = row["name"]
+                person_id = id
+                result = Person(person_id, person_name)
+                return result
+            else:
+                list_of_authors = list()
+                authors = connected_metahandler.getAuthorsOfCulturalHeritageObject(id)
+                for indx, row in authors.iterrows():
+                    person_name = row["author_name"]
+                    person_id = row["id"]
+                    author = Person(person_id, person_name)
+                    list_of_authors.append(author)
+                
+                row = entity_dataframe.loc[0]
+                object_title = row["title"]
+                if row["date"] != "":
+                    object_date = row["date"]
+                else: 
+                    object_date = None
+                object_authors = list_of_authors
+                object_owner = row["owner"]
+                object_place = row["place"]
+                object_type = row["type"]
+
+                base_url = "https://breaking-data.github.io/Data-Science-Project/"
+                
+                if object_type == base_url + "NauticalChart":
+                    new_object = NauticalChart(id, object_title, object_owner, object_place, object_date, object_authors)
+                elif object_type == base_url + "ManuscriptPlate":
+                    new_object = ManuscriptPlate(id, object_title, object_owner, object_place, object_date, object_authors)
+                elif object_type == base_url + "ManuscriptVolume":
+                    new_object = ManuscriptVolume(id, object_title, object_owner, object_place, object_date, object_authors)
+                elif object_type == base_url + "PrintedVolume":
+                    new_object = PrintedVolume(id, object_title, object_owner, object_place, object_date, object_authors)
+                elif object_type == base_url + "PrintedMaterial":
+                    new_object = PrintedMaterial(id, object_title, object_owner, object_place, object_date, object_authors)
+                elif object_type == base_url + "Herbarium":
+                    new_object = Herbarium(id, object_title, object_owner, object_place, object_date, object_authors)
+                elif object_type == base_url + "Specimen":
+                    new_object = Specimen(id, object_title, object_owner, object_place, object_date, object_authors)
+                elif object_type == base_url + "Painting":
+                    new_object = Painting(id, object_title, object_owner, object_place, object_date, object_authors)
+                elif object_type == base_url + "Model":
+                    new_object = Model(id, object_title, object_owner, object_place, object_date, object_authors)
+                elif object_type == base_url + "Map":
+                    new_object = Map(id, object_title, object_owner, object_place, object_date, object_authors)
+                else:
+                    new_object = None
+                
+                return new_object      
 
     def getAllPeople(self) -> list[Person]:  # Romolo
         people = dict()

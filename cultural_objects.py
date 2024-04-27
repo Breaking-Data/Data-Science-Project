@@ -1,5 +1,5 @@
 class IdentifiableEntity(object):
-    def __init__(self, id):
+    def __init__(self, id: str):
         self.id = id
 
     def getId(self):
@@ -7,7 +7,7 @@ class IdentifiableEntity(object):
 
 
 class Person(IdentifiableEntity):
-    def __init__(self, id, name):
+    def __init__(self, id: str, name: str):
         self.name = name
         super().__init__(id)
 
@@ -16,7 +16,7 @@ class Person(IdentifiableEntity):
 
 
 class CulturalHeritageObject(IdentifiableEntity):
-    def __init__(self, id, title, date, owner, place, hasAuthor):
+    def __init__(self, id: str, title: str, owner: str, place: str, date: str = None, hasAuthor: list = list()):
         self.title = title
         self.date = date
         self.owner = owner

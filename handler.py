@@ -392,9 +392,6 @@ class MetadataUploadHandler(UploadHandler):
         n_triples_in_database_after = 0
         for idx, row in df_database_after.iterrows():
             n_triples_in_database_after += 1
-        print(n_triples_in_graph)
-        print(n_triples_in_database_before)
-        print(n_triples_in_database_after)
 
         return n_triples_in_database_after == n_triples_in_graph + n_triples_in_database_before
 
@@ -498,7 +495,7 @@ class MetadataQueryHandler(QueryHandler):
         df_cultural_heritage_objects = get(endpoint, query, True)
         return df_cultural_heritage_objects
 
-    # it returns a data frame with all the authors of the cultural heritage objects identified by the input id.
+    # it returns a data frame with all the authors of the cultural heritage object identified by the input id.
     def getAuthorsOfCulturalHeritageObject(self, objectId: str) -> DataFrame:
         endpoint = self.getDbPathOrUrl() + "sparql"
         query = (

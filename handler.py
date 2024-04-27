@@ -158,6 +158,63 @@ class ProcessDataUploadHandler(UploadHandler):
 class MetadataUploadHandler(UploadHandler):
     def pushDataToDb(self, path):
 
+        # storing the number of triples already present in the database
+        endpoint = self.dbPathOrUrl + "sparql"
+        
+        query = """
+        SELECT ?s ?p ?o
+        WHERE {
+            ?s ?p ?o .
+        }
+        """
+        df_database_before = get(endpoint, query, True)
+
+        n_triples_in_database_before = 0
+        for idx, row in df_database_before.iterrows():
+            n_triples_in_database_before += 1
+
+    
+        # putting all the people URIs and IDS already present in the database in two dictionaries
+        people_authority_ids = dict()
+        people_object_ids = dict()
+        people_number = 0
+        
+        query = """
+        prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        prefix schema: <http://schema.org/>
+        SELECT ?personURI ?personId
+        WHERE {
+            ?personURI rdf:type ?type .
+            FILTER(?type = schema:Person)
+            ?personURI schema:identifier ?personId .
+        }
+        """
+        df_people = get(endpoint, query, True)
+
+        for indx, row in df_people.iterrows():
+            people_authority_ids[str(row["personId"])] = URIRef(row["personURI"])
+            people_number += 1
+
+        # putting all the cultural object URIs and IDs already present in the database in one dictionary
+        object_uris = dict()
+        object_number = 0
+
+        query = """
+        prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        prefix schema: <http://schema.org/>
+        SELECT ?culturalObjectURI ?culturalObjectId
+        WHERE {
+            ?culturalObjectURI rdf:type ?type .
+            FILTER(?type != schema:Person)
+            ?culturalObjectURI schema:identifier ?culturalObjectId .
+        }
+        """
+        df_objects = get(endpoint, query, True)
+
+        for indx, row in df_objects.iterrows():
+            object_uris[str(row["culturalObjectId"])] = URIRef(row["culturalObjectURI"])
+            object_number += 1
+
         # defining namespaces
         schema = Namespace("http://schema.org/")
         github = Namespace("https://breaking-data.github.io/Data-Science-Project/")
@@ -216,9 +273,6 @@ class MetadataUploadHandler(UploadHandler):
         base_url = "https://breaking-data.github.io/Data-Science-Project/"
 
         # populating the graph with all the people
-        people_authority_ids = dict()
-        people_object_ids = dict()
-        people_number = 0
         for idx, row in metadata_frame.iterrows():
 
             author = row["Author"]
@@ -263,59 +317,60 @@ class MetadataUploadHandler(UploadHandler):
 
         # populating the graph with all the cultural heritage objects
         for idx, row in metadata_frame.iterrows():
-            local_id = "culturalobject-" + str(idx)
-            subj = URIRef(base_url + local_id)
+            if row["Id"] not in object_uris:
+                local_id = "culturalobject-" + str(object_number)
+                subj = URIRef(base_url + local_id)
 
-            if row["Type"] != "":
-                if row["Type"].lower() == "nautical chart":
-                    metadata_graph.add((subj, RDF.type, NauticalChart))
+                if row["Type"] != "":
+                    if row["Type"].lower() == "nautical chart":
+                        metadata_graph.add((subj, RDF.type, NauticalChart))
 
-                elif row["Type"].lower() == "manuscript plate":
-                    metadata_graph.add((subj, RDF.type, ManuscriptPlate))
+                    elif row["Type"].lower() == "manuscript plate":
+                        metadata_graph.add((subj, RDF.type, ManuscriptPlate))
 
-                elif row["Type"].lower() == "manuscript volume":
-                    metadata_graph.add((subj, RDF.type, ManuscriptVolume))
+                    elif row["Type"].lower() == "manuscript volume":
+                        metadata_graph.add((subj, RDF.type, ManuscriptVolume))
 
-                elif row["Type"].lower() == "printed volume":
-                    metadata_graph.add((subj, RDF.type, PrintedVolume))
+                    elif row["Type"].lower() == "printed volume":
+                        metadata_graph.add((subj, RDF.type, PrintedVolume))
 
-                elif row["Type"].lower() == "printed material":
-                    metadata_graph.add((subj, RDF.type, PrintedMaterial))
+                    elif row["Type"].lower() == "printed material":
+                        metadata_graph.add((subj, RDF.type, PrintedMaterial))
 
-                elif row["Type"].lower() == "herbarium":
-                    metadata_graph.add((subj, RDF.type, Herbarium))
+                    elif row["Type"].lower() == "herbarium":
+                        metadata_graph.add((subj, RDF.type, Herbarium))
 
-                elif row["Type"].lower() == "specimen":
-                    metadata_graph.add((subj, RDF.type, Specimen))
+                    elif row["Type"].lower() == "specimen":
+                        metadata_graph.add((subj, RDF.type, Specimen))
 
-                elif row["Type"].lower() == "painting":
-                    metadata_graph.add((subj, RDF.type, Painting))
+                    elif row["Type"].lower() == "painting":
+                        metadata_graph.add((subj, RDF.type, Painting))
 
-                elif row["Type"].lower() == "model":
-                    metadata_graph.add((subj, RDF.type, Model))
+                    elif row["Type"].lower() == "model":
+                        metadata_graph.add((subj, RDF.type, Model))
 
-                elif row["Type"].lower() == "map":
-                    metadata_graph.add((subj, RDF.type, Map))
+                    elif row["Type"].lower() == "map":
+                        metadata_graph.add((subj, RDF.type, Map))
 
-            if row["Id"] != "":
-                metadata_graph.add((subj, identifier, Literal(row["Id"])))
-            if row["Title"] != "":
-                metadata_graph.add((subj, title, Literal(row["Title"])))
-            if row["Date"] != "":
-                metadata_graph.add((subj, date, Literal(row["Date"])))
-            if row["Owner"] != "":
-                metadata_graph.add((subj, owner, Literal(row["Owner"])))
-            if row["Place"] != "":
-                metadata_graph.add((subj, place, Literal(row["Place"])))
-            if row["Author"] != "":
-                authors = people_object_ids[row["Id"]]
-                for a in authors:
-                    metadata_graph.add((subj, hasAuthor, a))
+                if row["Id"] != "":
+                    metadata_graph.add((subj, identifier, Literal(row["Id"])))
+                if row["Title"] != "":
+                    metadata_graph.add((subj, title, Literal(row["Title"])))
+                if row["Date"] != "":
+                    metadata_graph.add((subj, date, Literal(row["Date"])))
+                if row["Owner"] != "":
+                    metadata_graph.add((subj, owner, Literal(row["Owner"])))
+                if row["Place"] != "":
+                    metadata_graph.add((subj, place, Literal(row["Place"])))
+                if row["Author"] != "":
+                    authors = people_object_ids[row["Id"]]
+                    for a in authors:
+                        metadata_graph.add((subj, hasAuthor, a))
 
+                object_number += 1
+        
         # sending the graph to the database
         store = SPARQLUpdateStore()
-
-        endpoint = self.dbPathOrUrl + "sparql"
 
         store.open((endpoint, endpoint))
 
@@ -331,15 +386,17 @@ class MetadataUploadHandler(UploadHandler):
             ?s ?p ?o .
         }
         """
-        df_sparql = get(endpoint, query, True)
+        df_database_after = get(endpoint, query, True)
 
         n_triples_in_graph = len(metadata_graph)
-        n_triples_in_database = 0
-        for idx, row in df_sparql.iterrows():
-            n_triples_in_database += 1
+        n_triples_in_database_after = 0
+        for idx, row in df_database_after.iterrows():
+            n_triples_in_database_after += 1
+        print(n_triples_in_graph)
+        print(n_triples_in_database_before)
+        print(n_triples_in_database_after)
 
-        return n_triples_in_database == n_triples_in_graph
-
+        return n_triples_in_database_after == n_triples_in_graph + n_triples_in_database_before
 
 class QueryHandler(Handler):
     def getById(self, id: str) -> DataFrame:

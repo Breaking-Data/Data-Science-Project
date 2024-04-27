@@ -33,35 +33,39 @@ class BasicMashup(object):
             and self.processQuery[-1] == handler
         )
 
-    def getEntityById(self, id) -> IdentifiableEntity | None:  # Simone
+    def getEntityById(self, entity_id: str) -> IdentifiableEntity | None:  # Simone
+        connected_metahandler = None
+        entity_dataframe = None
         for meta in self.metadataQuery:
-            entity_dataframe = meta.getById(id)
-            if len(entity_dataframe.index()) != 0:
+            entity_dataframe = meta.getById(entity_id)
+            if len(entity_dataframe.index) != 0:
                 connected_metahandler = meta
                 break
-        if len(entity_dataframe.index()) != 0:
+        if len(entity_dataframe.index) == 0:
             return None
         else:
-            if ":" in id:
+            if ":" in entity_id:
                 row = entity_dataframe.loc[0]
                 person_name = row["name"]
-                person_id = id
+                person_id = entity_id
                 result = Person(person_id, person_name)
                 return result
             else:
                 list_of_authors = list()
-                authors = connected_metahandler.getAuthorsOfCulturalHeritageObject(id)
+                authors = connected_metahandler.getAuthorsOfCulturalHeritageObject(
+                    entity_id
+                )
                 for indx, row in authors.iterrows():
                     person_name = row["author_name"]
                     person_id = row["id"]
                     author = Person(person_id, person_name)
                     list_of_authors.append(author)
-                
+
                 row = entity_dataframe.loc[0]
                 object_title = row["title"]
                 if row["date"] != "":
                     object_date = row["date"]
-                else: 
+                else:
                     object_date = None
                 object_authors = list_of_authors
                 object_owner = row["owner"]
@@ -69,31 +73,101 @@ class BasicMashup(object):
                 object_type = row["type"]
 
                 base_url = "https://breaking-data.github.io/Data-Science-Project/"
-                
+
                 if object_type == base_url + "NauticalChart":
-                    new_object = NauticalChart(id, object_title, object_owner, object_place, object_date, object_authors)
+                    new_object = NauticalChart(
+                        entity_id,
+                        object_title,
+                        object_owner,
+                        object_place,
+                        object_date,
+                        object_authors,
+                    )
                 elif object_type == base_url + "ManuscriptPlate":
-                    new_object = ManuscriptPlate(id, object_title, object_owner, object_place, object_date, object_authors)
+                    new_object = ManuscriptPlate(
+                        entity_id,
+                        object_title,
+                        object_owner,
+                        object_place,
+                        object_date,
+                        object_authors,
+                    )
                 elif object_type == base_url + "ManuscriptVolume":
-                    new_object = ManuscriptVolume(id, object_title, object_owner, object_place, object_date, object_authors)
+                    new_object = ManuscriptVolume(
+                        entity_id,
+                        object_title,
+                        object_owner,
+                        object_place,
+                        object_date,
+                        object_authors,
+                    )
                 elif object_type == base_url + "PrintedVolume":
-                    new_object = PrintedVolume(id, object_title, object_owner, object_place, object_date, object_authors)
+                    new_object = PrintedVolume(
+                        entity_id,
+                        object_title,
+                        object_owner,
+                        object_place,
+                        object_date,
+                        object_authors,
+                    )
                 elif object_type == base_url + "PrintedMaterial":
-                    new_object = PrintedMaterial(id, object_title, object_owner, object_place, object_date, object_authors)
+                    new_object = PrintedMaterial(
+                        entity_id,
+                        object_title,
+                        object_owner,
+                        object_place,
+                        object_date,
+                        object_authors,
+                    )
                 elif object_type == base_url + "Herbarium":
-                    new_object = Herbarium(id, object_title, object_owner, object_place, object_date, object_authors)
+                    new_object = Herbarium(
+                        entity_id,
+                        object_title,
+                        object_owner,
+                        object_place,
+                        object_date,
+                        object_authors,
+                    )
                 elif object_type == base_url + "Specimen":
-                    new_object = Specimen(id, object_title, object_owner, object_place, object_date, object_authors)
+                    new_object = Specimen(
+                        entity_id,
+                        object_title,
+                        object_owner,
+                        object_place,
+                        object_date,
+                        object_authors,
+                    )
                 elif object_type == base_url + "Painting":
-                    new_object = Painting(id, object_title, object_owner, object_place, object_date, object_authors)
+                    new_object = Painting(
+                        entity_id,
+                        object_title,
+                        object_owner,
+                        object_place,
+                        object_date,
+                        object_authors,
+                    )
                 elif object_type == base_url + "Model":
-                    new_object = Model(id, object_title, object_owner, object_place, object_date, object_authors)
+                    new_object = Model(
+                        entity_id,
+                        object_title,
+                        object_owner,
+                        object_place,
+                        object_date,
+                        object_authors,
+                    )
                 elif object_type == base_url + "Map":
-                    new_object = Map(id, object_title, object_owner, object_place, object_date, object_authors)
+                    new_object = Map(
+                        entity_id,
+                        object_title,
+                        object_owner,
+                        object_place,
+                        object_date,
+                        object_authors,
+                    )
                 else:
                     new_object = None
-                
-                return new_object      
+
+                return new_object
 
     def getAllPeople(self) -> list[Person]:  # Romolo
         people = dict()
@@ -287,20 +361,20 @@ class AdvancedMashup(BasicMashup):
 
     def getObjectsHandledByResponsiblePerson(
         self, partialName: str
-    ) -> list[CulturalHeritageObject]: # Simone
+    ) -> list[CulturalHeritageObject]:  # Simone
         pass
 
     def getObjectsHandledByResponsibleInstitution(
         self, partialName: str
-    ) -> list[CulturalHeritageObject]: # Romolo
+    ) -> list[CulturalHeritageObject]:  # Romolo
         objects = set()
         for activity in self.getActivitiesByResponsibleInstitution(partialName):
             objects.add(activity.refersTo())
         return list(objects)
 
     def getAuthorsOfObjectsAcquiredInTimeFrame(
-        self, start: str, end: str 
-    ) -> list[Person]: # Pietro
+        self, start: str, end: str
+    ) -> list[Person]:  # Pietro
         started_from = self.getActivitiesStartedAfter(self, start)
         activities_in_timeframe = []
         for activity in started_from:

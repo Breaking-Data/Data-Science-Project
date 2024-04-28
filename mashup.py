@@ -155,7 +155,7 @@ class BasicMashup(object):
                         object_date,
                         object_authors,
                     )
-                elif object_type == base_url + "Map":
+                elif object_type == "http://schema.org/Map":
                     new_object = Map(
                         entity_id,
                         object_title,
@@ -262,7 +262,7 @@ class BasicMashup(object):
         for processGrinder in self.processQuery:
             df_process = processGrinder.getAllActivities()
             for idx, row in df_process.iterrows():
-                object_id = row["objectId"]
+                object_id = str(row["objectId"])
                 cultural_object = self.getEntityById(object_id)
                 institute = row["responsibleInstitute"]
                 person = row["responsiblePerson"]
@@ -357,7 +357,8 @@ class AdvancedMashup(BasicMashup):
     def getActivitiesOnObjectsAuthoredBy(
         self, personId: str
     ) -> list[Activity]:  # Ludovica
-        pass
+        for obj in self.getCulturalHeritageObjectsAuthoredBy(personId):
+            pass
 
     def getObjectsHandledByResponsiblePerson(
         self, partialName: str

@@ -193,7 +193,7 @@ class BasicMashup(object):
 
             for index, row in df_objects.iterrows():
                 # info about the object
-                ob_id = row.id
+                ob_id = str(row.id)
                 title = row.title.strip()
                 date = row.date if not pd.isna(row.date) else None
                 owner = row.owner
@@ -357,8 +357,14 @@ class AdvancedMashup(BasicMashup):
     def getActivitiesOnObjectsAuthoredBy(
         self, personId: str
     ) -> list[Activity]:  # Ludovica
+        obj_ids = set()
+        activities = []
         for obj in self.getCulturalHeritageObjectsAuthoredBy(personId):
-            pass
+            obj_ids.add(obj.id)
+        for activity in self.getAllActivities():
+            if activity.refersTo().id in obj_ids:
+                activities.append(activity)
+        return activities
 
     def getObjectsHandledByResponsiblePerson(
         self, partialName: str

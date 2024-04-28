@@ -229,9 +229,7 @@ class BasicMashup(object):
 
         return list(cultural_objects.values())
 
-    def getAuthorsOfCulturalHeritageObject(
-        self, objectId: str
-    ) -> list[Person]:  # Pietro
+    def getAuthorsOfCulturalHeritageObject(self, objectId: str) -> list[Person]:  # Pietro
         authors = []
         objects = self.getAllCulturalHeritageObjects()
         for ob in objects:
@@ -257,92 +255,81 @@ class BasicMashup(object):
 
         return objects
 
-    def getAllActivities(self) -> list[Activity]:  # Simone
-        activities = []
+    def getAllActivities(self) -> list[Activity]:  # Romolo
+        activities = dict()
         for processGrinder in self.processQuery:
             df_process = processGrinder.getAllActivities()
             for idx, row in df_process.iterrows():
-                object_id = str(row["objectId"])
-                cultural_object = self.getEntityById(object_id)
+                object_id = row["objectId"]
+                cultural_object = self.getEntityById(str(object_id))
                 institute = row["responsibleInstitute"]
-                person = row["responsiblePerson"]
-                tool = row["tool"]
-                start = row["startDate"]
-                end = row["endDate"]
+                person = row["responsiblePerson"] if row["responsiblePerson"] else None
+                tool = set(row["tool"].split(', ')) if row["tool"] else set()
+                start = row["startDate"] if row["startDate"] else None
+                end = row["endDate"] if row["endDate"] else None
                 internal = row["internalId"]
 
                 if "acquisition" in internal.lower():
                     technique = row["technique"]
-                    activity = Acquisition(
-                        technique, institute, cultural_object, person, tool, start, end
-                    )
+                    activity = Acquisition(technique, institute, cultural_object, person, tool, start, end)
                 elif "processing" in internal:
-                    activity = Processing(
-                        institute, cultural_object, person, tool, start, end
-                    )
+                    activity = Processing(institute, cultural_object, person, tool, start, end)
                 elif "exporting" in internal:
-                    activity = Exporting(
-                        institute, cultural_object, person, tool, start, end
-                    )
+                    activity = Exporting(institute, cultural_object, person, tool, start, end)
                 elif "modelling" in internal:
-                    activity = Modelling(
-                        institute, cultural_object, person, tool, start, end
-                    )
+                    activity = Modelling(institute, cultural_object, person, tool, start, end)
                 else:
-                    activity = Optimising(
-                        institute, cultural_object, person, tool, start, end
-                    )
+                    activity = Optimising(institute, cultural_object, person, tool, start, end)
 
-                activities.append(activity)
+                activities[internal] = activity
 
-        return activities
+        return list(activities.values())
 
-    def getActivitiesByResponsibleInstitution(
-        self, partialName: str
-    ) -> list[Activity]:  # Ludovica
+    def getActivitiesByResponsibleInstitution(self, partialName: str) -> list[Activity]:  # Ludovica
         activities = []
         for activity in self.getAllActivities():
-            resp_inst = activity.getResposibleInstitute()
+            resp_inst = activity.getResponsibleInstitute()
             # check if a responsible institute exists and if the input matches it
             if resp_inst and partialName.lower() in resp_inst.lower():
                 activities.append(activity)
         return activities
 
-    def getActivitiesByResponsiblePerson(
-        self, partialName: str
-    ) -> list[Activity]:  # Romolo
+    def getActivitiesByResponsiblePerson(self, partialName: str) -> list[Activity]:  # Romolo
         activities = []
         for activity in self.getAllActivities():
-            if partialName in activity.getResponsiblePerson():
+            resp_pers = activity.getResponsiblePerson()
+            if resp_pers and partialName.lower() in resp_pers.lower():
                 activities.append(activity)
         return activities
 
-    def getActivitiesUsingTool(self, partialName) -> list[Activity]:  # Simone
+    def getActivitiesUsingTool(self, partialName: str) -> list[Activity]:  # Romolo
         activities = []
         for activity in self.getAllActivities():
-            for tl in activity.getTools():
-                if partialName in tl:
-                    activities.append(activity)
-                    break
+            tools = activity.getTools()
+            if tools:
+                for tool in tools:
+                    if partialName.lower() in tool.lower():
+                        activities.append(activity)
+                        break
         return activities
 
     def getActivitiesStartedAfter(self, date: str) -> list[Activity]:  # Romolo
         activities = []
         for activity in self.getAllActivities():
-            if activity.getstartDate() >= date:
+            start = activity.getstartDate()
+            if start and start > date:
                 activities.append(activity)
         return activities
 
     def getActivitiesEndedBefore(self, date: str) -> list[Activity]:  # Pietro
         activities = []
         for activity in self.getAllActivities():
-            if activity.getendDate() <= date:
+            end = activity.getendDate()
+            if end and end < date:
                 activities.append(activity)
         return activities
 
-    def getAcquisitionsByTechnique(
-        self, partialName: str
-    ) -> list[Acquisition]:  # Ludovica
+    def getAcquisitionsByTechnique(self, partialName: str) -> list[Acquisition]:  # Ludovica
         activities = []
         for activity in self.getAllActivities():
             if isinstance(activity, Acquisition):
@@ -354,9 +341,7 @@ class BasicMashup(object):
 
 
 class AdvancedMashup(BasicMashup):
-    def getActivitiesOnObjectsAuthoredBy(
-        self, personId: str
-    ) -> list[Activity]:  # Ludovica
+    def getActivitiesOnObjectsAuthoredBy(self, personId: str) -> list[Activity]:  # Ludovica
         obj_ids = set()
         activities = []
         for obj in self.getCulturalHeritageObjectsAuthoredBy(personId):
@@ -366,22 +351,16 @@ class AdvancedMashup(BasicMashup):
                 activities.append(activity)
         return activities
 
-    def getObjectsHandledByResponsiblePerson(
-        self, partialName: str
-    ) -> list[CulturalHeritageObject]:  # Simone
+    def getObjectsHandledByResponsiblePerson(self, partialName: str) -> list[CulturalHeritageObject]:  # Simone
         pass
 
-    def getObjectsHandledByResponsibleInstitution(
-        self, partialName: str
-    ) -> list[CulturalHeritageObject]:  # Romolo
+    def getObjectsHandledByResponsibleInstitution(self, partialName: str) -> list[CulturalHeritageObject]:  # Romolo
         objects = set()
         for activity in self.getActivitiesByResponsibleInstitution(partialName):
             objects.add(activity.refersTo())
         return list(objects)
 
-    def getAuthorsOfObjectsAcquiredInTimeFrame(
-        self, start: str, end: str
-    ) -> list[Person]:  # Pietro
+    def getAuthorsOfObjectsAcquiredInTimeFrame(self, start: str, end: str) -> list[Person]:  # Pietro
         started_from = self.getActivitiesStartedAfter(self, start)
         activities_in_timeframe = []
         for activity in started_from:

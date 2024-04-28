@@ -104,10 +104,10 @@ class Activity(object):
         self.end = end
         self.culturalHeritageObject = culturalHeritageObject
 
-    def getResposibleInstitute(self) -> str:
+    def getResponsibleInstitute(self) -> str:
         return self.institute
 
-    def getResposiblePerson(self) -> str | None:
+    def getResponsiblePerson(self) -> str | None:
         return self.person
 
     def getTools(self) -> set:

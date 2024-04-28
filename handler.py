@@ -397,7 +397,11 @@ class MetadataUploadHandler(UploadHandler):
 
 class QueryHandler(Handler):
     def getById(self, id: str) -> DataFrame:
-        db_address = self.getDbPathOrUrl()
+        if "http" in self.getDbPathOrUrl():
+            db_address = self.getDbPathOrUrl()
+        else:
+            return DataFrame()
+        
         endpoint = db_address + "sparql"
         query = "PREFIX schema: <http://schema.org/>"
         if ":" in id:

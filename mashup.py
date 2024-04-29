@@ -317,7 +317,7 @@ class BasicMashup(object):
         activities = []
         for activity in self.getAllActivities():
             start = activity.getstartDate()
-            if start and start > date:
+            if start and start >= date:
                 activities.append(activity)
         return activities
 
@@ -325,7 +325,7 @@ class BasicMashup(object):
         activities = []
         for activity in self.getAllActivities():
             end = activity.getendDate()
-            if end and end < date:
+            if end and end <= date:
                 activities.append(activity)
         return activities
 
@@ -355,16 +355,17 @@ class AdvancedMashup(BasicMashup):
         pass
 
     def getObjectsHandledByResponsibleInstitution(self, partialName: str) -> list[CulturalHeritageObject]:  # Romolo
-        objects = set()
+        objects = dict()
         for activity in self.getActivitiesByResponsibleInstitution(partialName):
-            objects.add(activity.refersTo())
-        return list(objects)
+            obj = activity.refersTo()
+            objects[obj.getId()] = obj
+        return list(objects.values())
 
     def getAuthorsOfObjectsAcquiredInTimeFrame(self, start: str, end: str) -> list[Person]:  # Pietro
-        started_from = self.getActivitiesStartedAfter(self, start)
+        started_from = self.getActivitiesStartedAfter(start)
         activities_in_timeframe = []
         for activity in started_from:
-            if activity.getendDate() <= end:
+            if activity.getendDate() and activity.getendDate() <= end:
                 activities_in_timeframe.append(activity)
 
         acqisitions_in_timeframe = []

@@ -63,7 +63,7 @@ class BasicMashup(object):
 
                 row = entity_dataframe.loc[0]
                 object_title = row["title"]
-                if row["date"] != "":
+                if row["date"] != "" and not pd.isna(row["date"]):
                     object_date = row["date"]
                 else:
                     object_date = None
@@ -352,7 +352,12 @@ class AdvancedMashup(BasicMashup):
         return activities
 
     def getObjectsHandledByResponsiblePerson(self, partialName: str) -> list[CulturalHeritageObject]:  # Simone
-        pass
+        objects = dict()
+        for activity in self.getActivitiesByResponsiblePerson(partialName):
+            obj = activity.refersTo()
+            objects[obj.getId()] = obj
+        return list(objects.values())
+
 
     def getObjectsHandledByResponsibleInstitution(self, partialName: str) -> list[CulturalHeritageObject]:  # Romolo
         objects = dict()

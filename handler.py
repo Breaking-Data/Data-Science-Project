@@ -448,7 +448,7 @@ class MetadataQueryHandler(QueryHandler):
     query_header = """
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX schema: <http://schema.org/>
-
+    PREFIX github: <https://breaking-data.github.io/Data-Science-Project/>
     """
 
     # it returns a data frame containing all the people included in the database.
@@ -474,8 +474,6 @@ class MetadataQueryHandler(QueryHandler):
         query = (
             self.query_header
             + """
-            PREFIX github: <https://breaking-data.github.io/Data-Science-Project/>
-
         SELECT ?uri ?type ?id ?title ?date ?owner ?place ?author
         WHERE {
             ?uri rdf:type ?type .

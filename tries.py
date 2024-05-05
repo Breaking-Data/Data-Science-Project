@@ -133,15 +133,7 @@ with open("tests_output.exe", mode="w", encoding="utf-8") as file:
     file.write("\n<-- getAuthorsOfObjectsAcquiredInTimeFrame test  -->\nInput: 2023-05, 2023-06\n\n")
 
     obj_auths_acq_between_2021_2022 = mashup.getAuthorsOfObjectsAcquiredInTimeFrame("2023-05", "2023-06")
-    n_auths = 0 # Il conto verrà aggiornato solo se si avranno autori, le liste di autori vuote non vengono contate
-    for auths in obj_auths_acq_between_2021_2022:
-        if isinstance(auths, list):
-            for auth in auths:
-                file.write(f"{auth}, id: {auth.getId()}, nome: {auth.getName()}\n")
-            if auths:
-                n_auths += 1
-        else:
-            file.write(f"{auths}, id: {auths.getId()}, nome: {auths.getName()}\n")
-            n_auths += 1
-    file.write(f"\nNumero di autori di oggetti acquisiti tra 2023-05 e 2023-06: {n_auths}")
+    for auth in obj_auths_acq_between_2021_2022:
+        file.write(f"{auth}, id: {auth.getId()}, nome: {auth.getName()}\n")
+    file.write(f"\nNumero di autori di oggetti acquisiti tra 2023-05 e 2023-06: {len(obj_auths_acq_between_2021_2022)}")
 print("!!! Verifica i risultati sul file tests_output.exe !!!")

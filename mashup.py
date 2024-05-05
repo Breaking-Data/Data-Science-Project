@@ -382,8 +382,13 @@ class AdvancedMashup(BasicMashup):
         for acquisition in acqisitions_in_timeframe:
             objects.append(acquisition.refersTo())
 
-        authors = []
+        list_authors = []
         for object in objects:
-            authors.append(object.getAuthors())
+            list_authors.append(object.getAuthors())
 
+        authors = []
+        for sublist in list_authors:
+            for item in sublist:
+                authors.append(item)
+                
         return authors

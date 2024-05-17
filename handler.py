@@ -1,11 +1,9 @@
 from json import load
-from pprint import pprint
 from pandas import DataFrame, concat, read_csv, read_sql, Series
 from sqlite3 import connect
 from rdflib import Graph, URIRef, RDF, Namespace, Literal
 from rdflib.plugins.stores.sparqlstore import SPARQLUpdateStore
 from sparql_dataframe import get
-from pprint import pprint as pp
 
 
 class Handler(object):

@@ -1,6 +1,6 @@
 from handler import MetadataQueryHandler, ProcessDataQueryHandler
+import cultural_objects as cultural_objects_module
 from cultural_objects import *
-import importlib
 import pandas as pd
 
 
@@ -184,8 +184,6 @@ class BasicMashup(object):
 
     def getAllCulturalHeritageObjects(self) -> list[CulturalHeritageObject]:  # Ludovica
         cultural_objects = dict()
-        # import module to be used later
-        module = importlib.import_module("cultural_objects")
 
         for metadata in self.metadataQuery:
             # cultural objects dataframe
@@ -213,8 +211,10 @@ class BasicMashup(object):
                     "https://breaking-data.github.io/Data-Science-Project/"
                 ).removeprefix("http://schema.org/")
 
-                # import the module and get the class
-                subclass = getattr(module, object_subclass)
+                # get the class of the object
+                subclass = getattr(cultural_objects_module, object_subclass)
+
+                # instatiate the cultural object
                 instance = subclass(
                     id=ob_id,
                     title=title,
@@ -229,7 +229,9 @@ class BasicMashup(object):
 
         return list(cultural_objects.values())
 
-    def getAuthorsOfCulturalHeritageObject(self, objectId: str) -> list[Person]:  # Pietro
+    def getAuthorsOfCulturalHeritageObject(
+        self, objectId: str
+    ) -> list[Person]:  # Pietro
         authors = []
         objects = self.getAllCulturalHeritageObjects()
         for ob in objects:
@@ -264,28 +266,40 @@ class BasicMashup(object):
                 cultural_object = self.getEntityById(str(object_id))
                 institute = row["responsibleInstitute"]
                 person = row["responsiblePerson"] if row["responsiblePerson"] else None
-                tool = set(row["tool"].split(', ')) if row["tool"] else set()
+                tool = set(row["tool"].split(", ")) if row["tool"] else set()
                 start = row["startDate"] if row["startDate"] else None
                 end = row["endDate"] if row["endDate"] else None
                 internal = row["internalId"]
 
                 if "acquisition" in internal.lower():
                     technique = row["technique"]
-                    activity = Acquisition(technique, institute, cultural_object, person, tool, start, end)
+                    activity = Acquisition(
+                        technique, institute, cultural_object, person, tool, start, end
+                    )
                 elif "processing" in internal:
-                    activity = Processing(institute, cultural_object, person, tool, start, end)
+                    activity = Processing(
+                        institute, cultural_object, person, tool, start, end
+                    )
                 elif "exporting" in internal:
-                    activity = Exporting(institute, cultural_object, person, tool, start, end)
+                    activity = Exporting(
+                        institute, cultural_object, person, tool, start, end
+                    )
                 elif "modelling" in internal:
-                    activity = Modelling(institute, cultural_object, person, tool, start, end)
+                    activity = Modelling(
+                        institute, cultural_object, person, tool, start, end
+                    )
                 else:
-                    activity = Optimising(institute, cultural_object, person, tool, start, end)
+                    activity = Optimising(
+                        institute, cultural_object, person, tool, start, end
+                    )
 
                 activities[internal] = activity
 
         return list(activities.values())
 
-    def getActivitiesByResponsibleInstitution(self, partialName: str) -> list[Activity]:  # Ludovica
+    def getActivitiesByResponsibleInstitution(
+        self, partialName: str
+    ) -> list[Activity]:  # Ludovica
         activities = []
         for activity in self.getAllActivities():
             resp_inst = activity.getResponsibleInstitute()
@@ -294,7 +308,9 @@ class BasicMashup(object):
                 activities.append(activity)
         return activities
 
-    def getActivitiesByResponsiblePerson(self, partialName: str) -> list[Activity]:  # Romolo
+    def getActivitiesByResponsiblePerson(
+        self, partialName: str
+    ) -> list[Activity]:  # Romolo
         activities = []
         for activity in self.getAllActivities():
             resp_pers = activity.getResponsiblePerson()
@@ -329,19 +345,23 @@ class BasicMashup(object):
                 activities.append(activity)
         return activities
 
-    def getAcquisitionsByTechnique(self, partialName: str) -> list[Acquisition]:  # Ludovica
+    def getAcquisitionsByTechnique(
+        self, partialName: str
+    ) -> list[Acquisition]:  # Ludovica
         activities = []
         for activity in self.getAllActivities():
             if isinstance(activity, Acquisition):
-                tecnique = activity.getTechnique()
+                technique = activity.getTechnique()
                 # check if a technique exists and if the input matches it
-                if tecnique and partialName.lower() in tecnique.lower():
+                if technique and partialName.lower() in technique.lower():
                     activities.append(activity)
         return activities
 
 
 class AdvancedMashup(BasicMashup):
-    def getActivitiesOnObjectsAuthoredBy(self, personId: str) -> list[Activity]:  # Ludovica
+    def getActivitiesOnObjectsAuthoredBy(
+        self, personId: str
+    ) -> list[Activity]:  # Ludovica
         obj_ids = set()
         activities = []
         for obj in self.getCulturalHeritageObjectsAuthoredBy(personId):
@@ -351,22 +371,27 @@ class AdvancedMashup(BasicMashup):
                 activities.append(activity)
         return activities
 
-    def getObjectsHandledByResponsiblePerson(self, partialName: str) -> list[CulturalHeritageObject]:  # Simone
+    def getObjectsHandledByResponsiblePerson(
+        self, partialName: str
+    ) -> list[CulturalHeritageObject]:  # Simone
         objects = dict()
         for activity in self.getActivitiesByResponsiblePerson(partialName):
             obj = activity.refersTo()
             objects[obj.getId()] = obj
         return list(objects.values())
 
-
-    def getObjectsHandledByResponsibleInstitution(self, partialName: str) -> list[CulturalHeritageObject]:  # Romolo
+    def getObjectsHandledByResponsibleInstitution(
+        self, partialName: str
+    ) -> list[CulturalHeritageObject]:  # Romolo
         objects = dict()
         for activity in self.getActivitiesByResponsibleInstitution(partialName):
             obj = activity.refersTo()
             objects[obj.getId()] = obj
         return list(objects.values())
 
-    def getAuthorsOfObjectsAcquiredInTimeFrame(self, start: str, end: str) -> list[Person]:  # Pietro
+    def getAuthorsOfObjectsAcquiredInTimeFrame(
+        self, start: str, end: str
+    ) -> list[Person]:  # Pietro
         started_from = self.getActivitiesStartedAfter(start)
         activities_in_timeframe = []
         for activity in started_from:
@@ -390,5 +415,5 @@ class AdvancedMashup(BasicMashup):
         for sublist in list_authors:
             for item in sublist:
                 authors.append(item)
-                
+
         return authors

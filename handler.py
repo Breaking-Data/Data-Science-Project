@@ -160,7 +160,7 @@ class MetadataUploadHandler(UploadHandler):
 
         # storing the number of triples already present in the database
         endpoint = self.dbPathOrUrl + "sparql"
-        
+
         query = """
         SELECT ?s ?p ?o
         WHERE {
@@ -173,12 +173,11 @@ class MetadataUploadHandler(UploadHandler):
         for idx, row in df_database_before.iterrows():
             n_triples_in_database_before += 1
 
-    
         # putting all the people URIs and IDS already present in the database in two dictionaries
         people_authority_ids = dict()
         people_object_ids = dict()
         people_number = 0
-        
+
         query = """
         prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         prefix schema: <http://schema.org/>
@@ -351,6 +350,11 @@ class MetadataUploadHandler(UploadHandler):
 
                     elif row["Type"].lower() == "map":
                         metadata_graph.add((subj, RDF.type, Map))
+                    else:
+                        print(
+                            f"The type of the object with id {row['Id']} is not compliant with the data model. The object will not be added to the graph."
+                        )
+                        continue
 
                 if row["Id"] != "":
                     metadata_graph.add((subj, identifier, Literal(row["Id"])))
@@ -368,7 +372,7 @@ class MetadataUploadHandler(UploadHandler):
                         metadata_graph.add((subj, hasAuthor, a))
 
                 object_number += 1
-        
+
         # sending the graph to the database
         store = SPARQLUpdateStore()
 
@@ -393,7 +397,11 @@ class MetadataUploadHandler(UploadHandler):
         for idx, row in df_database_after.iterrows():
             n_triples_in_database_after += 1
 
-        return n_triples_in_database_after == n_triples_in_graph + n_triples_in_database_before
+        return (
+            n_triples_in_database_after
+            == n_triples_in_graph + n_triples_in_database_before
+        )
+
 
 class QueryHandler(Handler):
     def getById(self, id: str) -> DataFrame:
@@ -401,7 +409,7 @@ class QueryHandler(Handler):
             db_address = self.getDbPathOrUrl()
         else:
             return DataFrame()
-        
+
         endpoint = db_address + "sparql"
         query = "PREFIX schema: <http://schema.org/>"
         if ":" in id:

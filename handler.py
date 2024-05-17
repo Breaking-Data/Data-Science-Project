@@ -48,21 +48,13 @@ class ProcessDataUploadHandler(UploadHandler):
 
             # creating empty dataframes with the correct column names for each activity.
             df_dict = {}
-            for (
-                column_name
-            ) in (
-                j_df.columns.to_list()
-            ):  # iterating over the columns to cretate the activity dataframes
+            for column_name in j_df.columns.to_list():  # iterating over the columns to cretate the activity dataframes
                 cell = j_df.loc[0, column_name]
                 if type(cell) == dict:
                     keys = cell.keys()
                     df_dict[column_name] = DataFrame(columns=keys)
-                    df_dict[column_name][
-                        "object id"
-                    ] = []  # adding the object id column
-                    df_dict[column_name].insert(
-                        0, "internal Id", []
-                    )  # adding the internal id column
+                    df_dict[column_name]["object id"] = []  # adding the object id column
+                    df_dict[column_name].insert(0, "internal Id", [])  # adding the internal id column
 
             # populating each empty activity dataframe with the correct information from j_df
             for df_name, df in df_dict.items():

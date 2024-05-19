@@ -145,8 +145,8 @@ class ProcessDataUploadHandler(UploadHandler):
 
 
 # The class for uploading the csv file to a graph database
-class MetadataUploadHandler(UploadHandler):
-    def pushDataToDb(self, path):
+class MetadataUploadHandler(UploadHandler): # Simone
+    def pushDataToDb(self, path: str) -> bool:
 
         # storing the number of triples already present in the database
         endpoint = self.dbPathOrUrl + "sparql"
@@ -173,8 +173,7 @@ class MetadataUploadHandler(UploadHandler):
         prefix schema: <http://schema.org/>
         SELECT ?personURI ?personId
         WHERE {
-            ?personURI rdf:type ?type .
-            FILTER(?type = schema:Person)
+            ?personURI rdf:type schema:Person .
             ?personURI schema:identifier ?personId .
         }
         """
@@ -226,10 +225,7 @@ class MetadataUploadHandler(UploadHandler):
         hasAuthor = URIRef(schema.author)
 
         # attributes related to the Person class
-        name = URIRef(
-            schema.name
-        )  # I'm not sure about this, 'cause "name" it's a propriety of the superclass "Thing" in schema.org
-        # (I'll explain to you my doubts)
+        name = URIRef(schema.name) 
 
         # classes of resources
         Person = URIRef(schema.Person)
@@ -244,7 +240,7 @@ class MetadataUploadHandler(UploadHandler):
         Model = URIRef(github.Model)
         Map = URIRef(schema.Map)
 
-        # the process to push the data
+        # the process of populating the local graph
         metadata_frame = read_csv(
             path,
             keep_default_na=False,
@@ -261,24 +257,21 @@ class MetadataUploadHandler(UploadHandler):
 
         base_url = "https://breaking-data.github.io/Data-Science-Project/"
 
-        # populating the graph with all the people
+        # populating the local graph with all the people
         for idx, row in metadata_frame.iterrows():
-
             author = row["Author"]
-
             if author != "":
                 list_of_authors = author.split(";")
                 for a in list_of_authors:
                     a_stripped = a.strip()
+                    
                     # Here I'm isolating the authority identifier and the name of the author
-                    for i, c in enumerate(a_stripped):
-                        if c == "(":
-                            indx_for_split = i
-
+                    indx_for_split = a_stripped.index("(")
                     person_name = a_stripped[: indx_for_split - 1]
                     person_id = a_stripped[(indx_for_split + 1) : -1]
                     object_id = row["Id"]
 
+                    # Checking if the person is already in the dictionaries
                     if person_id in people_authority_ids.keys():
                         person_uri = people_authority_ids[person_id]
                         if object_id in people_object_ids.keys():
@@ -287,11 +280,10 @@ class MetadataUploadHandler(UploadHandler):
                             people_object_ids[object_id] = [person_uri]
 
                     else:
-
                         local_id = "person-" + str(people_number)
                         subj = URIRef(base_url + local_id)
 
-                        # adding to the graph the type person, the identifier and the name of the person
+                        # Adding to the graph the type Person, the identifier and the name of the person
                         metadata_graph.add((subj, RDF.type, Person))
                         metadata_graph.add((subj, identifier, Literal(person_id)))
                         metadata_graph.add((subj, name, Literal(person_name)))

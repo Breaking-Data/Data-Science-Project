@@ -22,6 +22,7 @@ from cultural_objects import Person, CulturalHeritageObject, Activity, Acquisiti
 
 # REMEMBER: before launching the tests, please run the Blazegraph instance!
 
+
 class TestProjectBasic(unittest.TestCase):
 
     # The paths of the files used in the test should change depending on what you want to use
@@ -32,8 +33,8 @@ class TestProjectBasic(unittest.TestCase):
     metadata = "data" + sep + "meta.csv"
     process = "data" + sep + "process.json"
     relational = "." + sep + "relational.db"
-    graph = "http://192.168.1.197:9999/blazegraph/"
-    
+    graph = " http://192.168.158.53:9999/blazegraph/"
+
     def test_01_MetadataUploadHandler(self):
         u = MetadataUploadHandler()
         self.assertTrue(u.setDbPathOrUrl(self.graph))
@@ -45,7 +46,7 @@ class TestProjectBasic(unittest.TestCase):
         self.assertTrue(u.setDbPathOrUrl(self.relational))
         self.assertEqual(u.getDbPathOrUrl(), self.relational)
         self.assertTrue(u.pushDataToDb(self.process))
-    
+
     def test_03_MetadataQueryHandler(self):
         q = MetadataQueryHandler()
         self.assertTrue(q.setDbPathOrUrl(self.graph))
@@ -55,10 +56,13 @@ class TestProjectBasic(unittest.TestCase):
 
         self.assertIsInstance(q.getAllPeople(), DataFrame)
         self.assertIsInstance(q.getAllCulturalHeritageObjects(), DataFrame)
-        self.assertIsInstance(q.getAuthorsOfCulturalHeritageObject("just_a_test"), DataFrame)
-        self.assertIsInstance(q.getCulturalHeritageObjectsAuthoredBy(
-            "just_a_test"), DataFrame)
-    
+        self.assertIsInstance(
+            q.getAuthorsOfCulturalHeritageObject("just_a_test"), DataFrame
+        )
+        self.assertIsInstance(
+            q.getCulturalHeritageObjectsAuthoredBy("just_a_test"), DataFrame
+        )
+
     def test_04_ProcessDataQueryHandler(self):
         q = ProcessDataQueryHandler()
         self.assertTrue(q.setDbPathOrUrl(self.relational))
@@ -67,14 +71,17 @@ class TestProjectBasic(unittest.TestCase):
         self.assertIsInstance(q.getById("just_a_test"), DataFrame)
 
         self.assertIsInstance(q.getAllActivities(), DataFrame)
-        self.assertIsInstance(q.getActivitiesByResponsibleInstitution(
-            "just_a_test"), DataFrame)
-        self.assertIsInstance(q.getActivitiesByResponsiblePerson("just_a_test"), DataFrame)
+        self.assertIsInstance(
+            q.getActivitiesByResponsibleInstitution("just_a_test"), DataFrame
+        )
+        self.assertIsInstance(
+            q.getActivitiesByResponsiblePerson("just_a_test"), DataFrame
+        )
         self.assertIsInstance(q.getActivitiesUsingTool("just_a_test"), DataFrame)
         self.assertIsInstance(q.getActivitiesStartedAfter("1088-01-01"), DataFrame)
         self.assertIsInstance(q.getActivitiesEndedBefore("2029-01-01"), DataFrame)
         self.assertIsInstance(q.getAcquisitionsByTechnique("just_a_test"), DataFrame)
-        
+
     def test_05_AdvancedMashup(self):
         qm = MetadataQueryHandler()
         qm.setDbPathOrUrl(self.graph)
@@ -162,11 +169,12 @@ class TestProjectBasic(unittest.TestCase):
         r = am.getAuthorsOfObjectsAcquiredInTimeFrame("1088-01-01", "2029-01-01")
         self.assertIsInstance(r, list)
         for i in r:
-            self.assertIsInstance(i, Person)   
+            self.assertIsInstance(i, Person)
+
 
 test = TestProjectBasic()
-test.test_01_MetadataUploadHandler()
-test.test_02_ProcessDataUploadHandler()
-test.test_03_MetadataQueryHandler()
-test.test_04_ProcessDataQueryHandler()
-test.test_05_AdvancedMashup()
+print(test.test_01_MetadataUploadHandler())
+print(test.test_02_ProcessDataUploadHandler())
+print(test.test_03_MetadataQueryHandler())
+print(test.test_04_ProcessDataQueryHandler())
+print(test.test_05_AdvancedMashup())

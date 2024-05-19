@@ -39,83 +39,138 @@ class ProcessDataUploadHandler(UploadHandler):
         with open(json_file) as f:
             list_of_dict = load(f)
             keys = list_of_dict[0].keys()
-            j_df = DataFrame(list_of_dict, columns=keys) # the columns correspond to the activities the rows to the objectsand each cell contains nested dictionary except from the column object id 
-            j_df = j_df.drop_duplicates(subset="object id", keep="first")  # removing all duplicates from the dataframe (based on object id)
+            j_df = DataFrame(
+                list_of_dict, columns=keys
+            )  # the columns correspond to the activities the rows to the objectsand each cell contains nested dictionary except from the column object id
+            j_df = j_df.drop_duplicates(
+                subset="object id", keep="first"
+            )  # removing all duplicates from the dataframe (based on object id)
 
             # creating empty dataframes with the correct column names for each activity.
             df_dict = {}
-            for column_name in j_df.columns.to_list(): # iterating over the columns to cretate the activity dataframes
+            for (
+                column_name
+            ) in (
+                j_df.columns.to_list()
+            ):  # iterating over the columns to cretate the activity dataframes
                 cell = j_df.loc[0, column_name]
                 if type(cell) == dict:
                     keys = cell.keys()
-                    df_dict[column_name] = DataFrame(columns=keys) # I get one dataframe for each activity with the keys as column names
-                    df_dict[column_name]["object id"] = []  # adding the object id column
-                    df_dict[column_name].insert(0, "internal Id", [])  # adding the internal id column
+                    df_dict[column_name] = DataFrame(
+                        columns=keys
+                    )  # I get one dataframe for each activity with the keys as column names
+                    df_dict[column_name][
+                        "object id"
+                    ] = []  # adding the object id column
+                    df_dict[column_name].insert(
+                        0, "internal Id", []
+                    )  # adding the internal id column
 
             # populating each empty activity dataframe with the correct information from j_df
-            for df_name, df in df_dict.items(): # iterate over the dictionary with yhe empty dataframes
-                for column_to_fill in df.columns.to_list()[1:-1]: #iterate over the column names of the dataframe
+            for (
+                df_name,
+                df,
+            ) in (
+                df_dict.items()
+            ):  # iterate over the dictionary with yhe empty dataframes
+                for column_to_fill in df.columns.to_list()[
+                    1:-1
+                ]:  # iterate over the column names of the dataframe
                     int_ids = []
                     content = []
                     ob_ids = []
                     num_rows = len(j_df)
                     i = 0
                     while i < num_rows:
-                        ob_id = j_df.loc[i]["object id"] # it is current object id
-                        cell = j_df.loc[i][df_name] # it is the dictionary contained in the current cell
-                        column_value = cell[column_to_fill] # extracting the value of column_to_fill which is a key of the current dictionary
+                        ob_id = j_df.loc[i]["object id"]  # it is current object id
+                        cell = j_df.loc[i][
+                            df_name
+                        ]  # it is the dictionary contained in the current cell
+                        column_value = cell[
+                            column_to_fill
+                        ]  # extracting the value of column_to_fill which is a key of the current dictionary
 
                         if type(column_value) == list:
-                            column_value = ", ".join(column_value) # if the value extracted is a list it's joined into a string
-                        elif column_value == "": # if it's empty it becomes None
+                            column_value = ", ".join(
+                                column_value
+                            )  # if the value extracted is a list it's joined into a string
+                        elif column_value == "":  # if it's empty it becomes None
                             column_value = None
 
-                        int_ids.append(f"{df_name}-{ob_id}") # creating a list with all of the internal ids in order
-                        ob_ids.append(ob_id) # creating a list with all of the object ids in order
-                        content.append(column_value) # I create a list with all of the column values in order
+                        int_ids.append(
+                            f"{df_name}-{ob_id}"
+                        )  # creating a list with all of the internal ids in order
+                        ob_ids.append(
+                            ob_id
+                        )  # creating a list with all of the object ids in order
+                        content.append(
+                            column_value
+                        )  # I create a list with all of the column values in order
 
                         i += 1
 
-                    df["internal Id"] = int_ids # filling the internal Id column with the int_ids list
-                    df["object id"] = ob_ids # filling the object id column with the ob_ids list
-                    df[column_to_fill] = content # filling the current column with the content list
+                    df["internal Id"] = (
+                        int_ids  # filling the internal Id column with the int_ids list
+                    )
+                    df["object id"] = (
+                        ob_ids  # filling the object id column with the ob_ids list
+                    )
+                    df[column_to_fill] = (
+                        content  # filling the current column with the content list
+                    )
 
             # correcting the tables and the columns names
             table_dict = {}
             for df_name, df in df_dict.items():
-                table_dict[df_name[0].upper() + df_name[1:]] = df # making the first letter of each df_name uppercase
+                table_dict[df_name[0].upper() + df_name[1:]] = (
+                    df  # making the first letter of each df_name uppercase
+                )
 
                 new_columns = []
                 for column_name in df.columns.tolist():
                     new_name = column_name.title()
                     new_name = new_name.replace(" ", "")
                     new_name = new_name[0].lower() + new_name[1:]
-                    new_columns.append(new_name) # making the column names camelcase
+                    new_columns.append(new_name)  # making the column names camelcase
                 df.columns = new_columns
 
             # uploading the tables to the database
             with connect(self.dbPathOrUrl) as con:
                 for table_name, table in table_dict.items():
-                    exists_query = f'SELECT name FROM sqlite_master WHERE type="table" AND name="{table_name}"' # it returns the name of the table if it exists
-                    exists = con.execute(exists_query).fetchone() # executing the query, if it return somethin exists is True else it's None
+                    exists_query = f'SELECT name FROM sqlite_master WHERE type="table" AND name="{table_name}"'  # it returns the name of the table if it exists
+                    exists = con.execute(
+                        exists_query
+                    ).fetchone()  # executing the query, if it return somethin exists is True else it's None
 
-                    if (exists):  # if the table already exists, if present, the duplictaes get removed and the table is uploaded
+                    if (
+                        exists
+                    ):  # if the table already exists, if present, the duplictaes get removed and the table is uploaded
                         unic_id_col = table.columns[0]
-                        unic_id_query = f'SELECT "{unic_id_col}" FROM "{table_name}"' # returns a list of tuples 
-                        unic_ids_db_raw = con.execute(unic_id_query).fetchall() # getting alle the unique ids (tuples)
+                        unic_id_query = f'SELECT "{unic_id_col}" FROM "{table_name}"'  # returns a list of tuples
+                        unic_ids_db_raw = con.execute(
+                            unic_id_query
+                        ).fetchall()  # getting alle the unique ids (tuples)
 
                         unic_ids_db = set()
                         for item in unic_ids_db_raw:
-                            unic_ids_db.add(item[0]) # extracting the ids from the tuples and storing the into a set
+                            unic_ids_db.add(
+                                item[0]
+                            )  # extracting the ids from the tuples and storing the into a set
 
-                        unic_ids_table = set(table[table.columns.tolist()[0]].tolist()) # storing the ids from the table that has to be uploaded
-                        no_dup_ids = unic_ids_table - unic_ids_db # isolates the ids that are in the table and not already in the database
-                        no_dup_table = table[table["internalId"].isin(no_dup_ids)] # eliminates the ids from the dataframe that are not in the no_dup_ids set
+                        unic_ids_table = set(
+                            table[table.columns.tolist()[0]].tolist()
+                        )  # storing the ids from the table that has to be uploaded
+                        no_dup_ids = (
+                            unic_ids_table - unic_ids_db
+                        )  # isolates the ids that are in the table and not already in the database
+                        no_dup_table = table[
+                            table["internalId"].isin(no_dup_ids)
+                        ]  # eliminates the ids from the dataframe that are not in the no_dup_ids set
 
                         no_dup_table.to_sql(
                             table_name,
                             con,
-                            if_exists="append", # adding the new rows to the existing table on the dataframe
+                            if_exists="append",  # adding the new rows to the existing table on the dataframe
                             index=False,
                             dtype="string",
                         )
@@ -141,7 +196,7 @@ class ProcessDataUploadHandler(UploadHandler):
 
 
 # The class for uploading the csv file to a graph database
-class MetadataUploadHandler(UploadHandler): # Simone
+class MetadataUploadHandler(UploadHandler):  # Simone
     def pushDataToDb(self, path: str) -> bool:
 
         # storing the number of triples already present in the database
@@ -221,7 +276,7 @@ class MetadataUploadHandler(UploadHandler): # Simone
         hasAuthor = URIRef(schema.author)
 
         # attributes related to the Person class
-        name = URIRef(schema.name) 
+        name = URIRef(schema.name)
 
         # classes of resources
         Person = URIRef(schema.Person)
@@ -260,7 +315,7 @@ class MetadataUploadHandler(UploadHandler): # Simone
                 list_of_authors = author.split(";")
                 for a in list_of_authors:
                     a_stripped = a.strip()
-                    
+
                     # Here I'm isolating the authority identifier and the name of the author
                     indx_for_split = a_stripped.index("(")
                     person_name = a_stripped[: indx_for_split - 1]
@@ -528,171 +583,103 @@ class MetadataQueryHandler(QueryHandler):
 
 # Process from the JSON Handler
 class ProcessDataQueryHandler(QueryHandler):  # Ludovica
-    all_cols_null_tech = "internalId, responsibleInstitute, responsiblePerson, NULL AS technique, tool, startDate, endDate, objectId"
+
+    def queryMaker(self, condition) -> DataFrame:
+        query = f"""
+        SELECT
+            internalId,
+            responsibleInstitute,
+            responsiblePerson,
+            technique,
+            tool,
+            startDate,
+            endDate,
+            objectId
+        FROM
+            Acquisition
+        {condition}
+        UNION
+        SELECT
+            internalId,
+            responsibleInstitute,
+            responsiblePerson,
+            NULL AS technique,
+            tool,
+            startDate,
+            endDate,
+            objectId
+        FROM
+            Exporting
+        {condition}
+        UNION
+        SELECT
+            internalId,
+            responsibleInstitute,
+            responsiblePerson,
+            NULL AS technique,
+            tool,
+            startDate,
+            endDate,
+            objectId
+        FROM
+            Modelling
+        {condition}
+        UNION
+        SELECT
+            internalId,
+            responsibleInstitute,
+            responsiblePerson,
+            NULL AS technique,
+            tool,
+            startDate,
+            endDate,
+            objectId
+        FROM
+            Optimising
+        {condition}
+        UNION
+        SELECT
+            internalId,
+            responsibleInstitute,
+            responsiblePerson,
+            NULL AS technique,
+            tool,
+            startDate,
+            endDate,
+            objectId
+        FROM
+            Processing
+        {condition}
+        ORDER BY
+            objectId;
+
+        """
+        with connect(self.getDbPathOrUrl()) as con:
+            return read_sql(query, con)
 
     # returns a dataframe with all the activities in the database.
     def getAllActivities(self) -> DataFrame:
-        with connect(self.getDbPathOrUrl()) as con:
-            query_all_activities = f"""
-            SELECT *
-            FROM Acquisition
-            UNION
-            SELECT {self.all_cols_null_tech} 
-            FROM Processing
-            UNION
-            SELECT {self.all_cols_null_tech} 
-            FROM Exporting
-            UNION
-            SELECT {self.all_cols_null_tech} 
-            FROM Modelling
-            UNION
-            SELECT {self.all_cols_null_tech}  
-            FROM Optimising
-            ORDER BY acquisition.objectId;
-            """
-
-            df_all_activities = read_sql(query_all_activities, con)
-
-        return df_all_activities
+        return self.queryMaker("")
 
     # returns a data frame with all the activities that have, as responsible institution, any that matches (even partially) with the input string.
     def getActivitiesByResponsibleInstitution(self, partialName: str) -> DataFrame:
-        with connect(self.getDbPathOrUrl()) as con:
-            query = f"""
-                SELECT * 
-                FROM (
-                    SELECT *
-                    FROM Acquisition
-                    UNION
-                    SELECT {self.all_cols_null_tech}
-                    FROM Exporting
-                    UNION
-                    SELECT {self.all_cols_null_tech}
-                    FROM Modelling
-                    UNION
-                    SELECT {self.all_cols_null_tech}
-                    FROM Optimising
-                    UNION
-                    SELECT {self.all_cols_null_tech}
-                    FROM Processing
-                ) AS subquery
-                WHERE responsibleInstitute LIKE '%{partialName}%'
-                ORDER BY objectId;
-                """
-            df = read_sql(query, con)
-        return df
+        return self.queryMaker(f"WHERE responsibleInstitute LIKE '%{partialName}%'")
 
     #  returns a data frame with all the activities that have, as responsible person, any that matches (even partially) with the input string.
     def getActivitiesByResponsiblePerson(self, partialName: str) -> DataFrame:
-        with connect(self.getDbPathOrUrl()) as con:
-            query = f"""
-            SELECT * 
-            FROM (
-                SELECT *
-                FROM Acquisition
-                UNION
-                SELECT {self.all_cols_null_tech} 
-                FROM Exporting
-                UNION
-                SELECT  {self.all_cols_null_tech} 
-                FROM Modelling
-                UNION
-                SELECT {self.all_cols_null_tech} 
-                FROM Optimising
-                UNION
-                SELECT {self.all_cols_null_tech} 
-                FROM Processing
-            ) AS subquery
-            WHERE responsiblePerson LIKE '%{partialName}%'
-            ORDER BY objectId;
-            """
-
-            df = read_sql(query, con)
-        return df
+        return self.queryMaker(f"WHERE responsiblePerson LIKE '%{partialName}%'")
 
     # returns a data frame with all the activities that have, as a tool used, any that matches (even partially) with the input string.
     def getActivitiesUsingTool(self, partialName: str) -> DataFrame:
-        with connect(self.getDbPathOrUrl()) as con:
-            query = f"""
-            SELECT * 
-            FROM (
-                SELECT *
-                FROM Acquisition
-                UNION
-                SELECT {self.all_cols_null_tech} 
-                FROM Exporting
-                UNION
-                SELECT {self.all_cols_null_tech}  
-                FROM Modelling
-                UNION
-                SELECT {self.all_cols_null_tech} 
-                FROM Optimising
-                UNION
-                SELECT {self.all_cols_null_tech} 
-                FROM Processing
-            ) AS subquery
-            WHERE tool LIKE '%{partialName}%'
-            ORDER BY objectId;
-            """
-
-            df = read_sql(query, con)
-        return df
+        return self.queryMaker(f"WHERE tool LIKE '%{partialName}%'")
 
     # returns a data frame with all the activities that started either exactly on or after the date specified as input.
     def getActivitiesStartedAfter(self, date: str) -> DataFrame:
-        with connect(self.getDbPathOrUrl()) as con:
-            query = f"""
-                SELECT * 
-                FROM (
-                SELECT *
-                FROM Acquisition
-                UNION
-                SELECT {self.all_cols_null_tech} 
-                FROM Exporting
-                UNION
-                SELECT {self.all_cols_null_tech} 
-                FROM Modelling
-                UNION
-                SELECT {self.all_cols_null_tech} 
-                FROM Optimising
-                UNION
-                SELECT {self.all_cols_null_tech} 
-                FROM Processing
-            ) AS subquery
-            WHERE startDate >= "{date}"
-            ORDER BY objectId;
-            """
-
-            df = read_sql(query, con)
-        return df
+        return self.queryMaker(f"WHERE startDate >= '{date}'")
 
     # returns a data frame with all the activities that ended either exactly on or before the date specified as input.
     def getActivitiesEndedBefore(self, date: str) -> DataFrame:
-        with connect(self.getDbPathOrUrl()) as con:
-            query = f"""
-            SELECT 
-            * FROM (
-                SELECT *
-                FROM Acquisition
-                UNION
-                SELECT {self.all_cols_null_tech} 
-                FROM Exporting
-                UNION
-                SELECT {self.all_cols_null_tech}  
-                FROM Modelling
-                UNION
-                SELECT {self.all_cols_null_tech} 
-                FROM Optimising
-                UNION
-                SELECT {self.all_cols_null_tech} 
-                FROM Processing
-            ) AS subquery
-            WHERE endDate <= "{date}"
-            ORDER BY objectId;
-            """
-
-            df = read_sql(query, con)
-        return df
+        return self.queryMaker(f"WHERE endDate <= '{date}'")
 
     # returns a data frame with all the acquisitions that have, as a technique used, any that matches (even partially) with the input string.
     def getAcquisitionsByTechnique(self, partialName: str) -> DataFrame:
@@ -700,7 +687,7 @@ class ProcessDataQueryHandler(QueryHandler):  # Ludovica
             query = f"""
             SELECT *
             FROM Acquisition
-            WHERE technique LIKE "%{partialName}%"
+            WHERE technique LIKE '%{partialName}%'
             ORDER BY objectId
             """
 

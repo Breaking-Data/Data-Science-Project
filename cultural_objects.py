@@ -2,20 +2,20 @@ class IdentifiableEntity(object):
     def __init__(self, id: str):
         self.id = id
 
-    def getId(self):
+    def getId(self) -> str:
         return self.id
 
 
-class Person(IdentifiableEntity):
+class Person(IdentifiableEntity): # Simone
     def __init__(self, id: str, name: str):
         self.name = name
         super().__init__(id)
 
-    def getName(self):
+    def getName(self) -> str:
         return self.name
 
 
-class CulturalHeritageObject(IdentifiableEntity):
+class CulturalHeritageObject(IdentifiableEntity): # Simone
     def __init__(self, id: str, title: str, owner: str, place: str, date: str = None, hasAuthor: list = list()):
         self.title = title
         self.date = date
@@ -25,19 +25,19 @@ class CulturalHeritageObject(IdentifiableEntity):
 
         super().__init__(id)
 
-    def getTitle(self):
+    def getTitle(self) -> str:
         return self.title
 
-    def getDate(self):
+    def getDate(self) -> str | None:
         return self.date
 
-    def getOwner(self):
+    def getOwner(self) -> str:
         return self.owner
 
-    def getPlace(self):
+    def getPlace(self) -> str:
         return self.place
 
-    def getAuthors(self):
+    def getAuthors(self) -> list:
         return self.hasAuthor
 
 
@@ -87,7 +87,7 @@ default, except tool, that by default is an empty set.
 """
 
 
-class Activity(object):
+class Activity(object): # Romolo
     def __init__(
         self,
         institute: str,
@@ -123,7 +123,7 @@ class Activity(object):
         return self.culturalHeritageObject
 
 
-class Acquisition(Activity):
+class Acquisition(Activity): # Romolo
     def __init__(
         self,
         technique: str,

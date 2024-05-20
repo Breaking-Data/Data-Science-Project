@@ -34,8 +34,6 @@ class BasicMashup(object):
         )
 
     def getEntityById(self, entity_id: str) -> IdentifiableEntity | None:  # Simone
-        connected_metahandler = None
-        entity_dataframe = None
         for meta in self.metadataQuery:
             entity_dataframe = meta.getById(entity_id)
             if len(entity_dataframe.index) != 0:
@@ -332,7 +330,7 @@ class BasicMashup(object):
     def getActivitiesStartedAfter(self, date: str) -> list[Activity]:  # Romolo
         activities = []
         for activity in self.getAllActivities():
-            start = activity.getstartDate()
+            start = activity.getStartDate()
             if start and start >= date:
                 activities.append(activity)
         return activities
@@ -340,7 +338,7 @@ class BasicMashup(object):
     def getActivitiesEndedBefore(self, date: str) -> list[Activity]:  # Pietro
         activities = []
         for activity in self.getAllActivities():
-            end = activity.getendDate()
+            end = activity.getEndDate()
             if end and end <= date:
                 activities.append(activity)
         return activities
@@ -395,16 +393,16 @@ class AdvancedMashup(BasicMashup):
         started_from = self.getActivitiesStartedAfter(start)
         activities_in_timeframe = []
         for activity in started_from:
-            if activity.getendDate() and activity.getendDate() <= end:
+            if activity.getEndDate() and activity.getEndDate() <= end:
                 activities_in_timeframe.append(activity)
 
-        acqisitions_in_timeframe = []
+        acquistitions_in_timeframe = []
         for activity in activities_in_timeframe:
             if isinstance(activity, Acquisition):
-                acqisitions_in_timeframe.append(activity)
+                acquistitions_in_timeframe.append(activity)
 
         objects = []
-        for acquisition in acqisitions_in_timeframe:
+        for acquisition in acquistitions_in_timeframe:
             objects.append(acquisition.refersTo())
 
         list_authors = []

@@ -113,10 +113,10 @@ class Activity(object): # Romolo
     def getTools(self) -> set:
         return self.tool
 
-    def getstartDate(self) -> str | None:
+    def getStartDate(self) -> str | None:
         return self.start
 
-    def getendDate(self) -> str | None:
+    def getEndDate(self) -> str | None:
         return self.end
 
     def refersTo(self) -> CulturalHeritageObject:

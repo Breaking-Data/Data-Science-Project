@@ -362,10 +362,10 @@ class AdvancedMashup(BasicMashup):
     def getActivitiesOnObjectsAuthoredBy(
         self, personId: str
     ) -> list[Activity]:  # Ludovica
-        obj_ids = set()
+        obj_ids = []
         activities = []
         for obj in self.getCulturalHeritageObjectsAuthoredBy(personId):
-            obj_ids.add(obj.id)
+            obj_ids.append(obj.id)
         for activity in self.getAllActivities():
             if activity.refersTo().id in obj_ids:
                 activities.append(activity)

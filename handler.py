@@ -583,18 +583,10 @@ class MetadataQueryHandler(QueryHandler):
 
 # Process from the JSON Handler
 class ProcessDataQueryHandler(QueryHandler):  # Ludovica
-
     def queryMaker(self, condition) -> DataFrame:
         query = f"""
         SELECT
-            internalId,
-            responsibleInstitute,
-            responsiblePerson,
-            technique,
-            tool,
-            startDate,
-            endDate,
-            objectId
+            *
         FROM
             Acquisition
         {condition}

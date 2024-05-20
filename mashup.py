@@ -162,8 +162,6 @@ class BasicMashup(object):
                         object_date,
                         object_authors,
                     )
-                else:
-                    new_object = None
 
                 return new_object
 

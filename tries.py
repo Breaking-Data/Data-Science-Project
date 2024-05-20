@@ -17,7 +17,7 @@ process_qh.setDbPathOrUrl("relational.db")  # verifica che sia il tuo path
 
 mashup = AdvancedMashup()
 
-with open("tests_output.exe", mode="w", encoding="utf-8") as file:
+with open("tests_output.txt", mode="w", encoding="utf-8") as file:
     file.write("TEST DEI METODI BasicMashup-AdvancedMashup\n\n\n")
 
     file.write("Add e Clean test  -->\n\n")
@@ -207,4 +207,4 @@ with open("tests_output.exe", mode="w", encoding="utf-8") as file:
     file.write(
         f"\nNumero di autori di oggetti acquisiti tra 2023-05 e 2023-06: {len(obj_auths_acq_between_2021_2022)}"
     )
-print("!!! Verifica i risultati sul file tests_output.exe !!!")
+print("!!! Verifica i risultati sul file tests_output.txt !!!")

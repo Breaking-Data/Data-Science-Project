@@ -21,8 +21,8 @@ Numero totale di oggetti culturali: 35
 
 <-- getAuthorsOfCulturalHeritageObject test -->
 
-Autori dell'oggetto 1: ['<cultural_objects.Person object at 0x000002B41B4891B0>, id: ULAN:500114874, nome: Benincasa, Grazioso']
-Autori dell'oggetto 2: ['<cultural_objects.Person object at 0x000002B41B488250>, id: ULAN:500048088, nome: Agnese, Battista', '<cultural_objects.Person object at 0x000002B41B489D80>, id: VIAF:100219162, nome: Plinius Secundus, Gaius']
+Autori dell'oggetto 1: ['<cultural_objects.Person object at 0x104e54050>, id: ULAN:500114874, nome: Benincasa, Grazioso']
+Autori dell'oggetto 2: ['<cultural_objects.Person object at 0x104e39130>, id: ULAN:500048088, nome: Agnese, Battista', '<cultural_objects.Person object at 0x104c6ef90>, id: VIAF:100219162, nome: Plinius Secundus, Gaius']
 Autori dell'oggetto 28: []
 
 
@@ -30,21 +30,22 @@ Autori dell'oggetto 28: []
 
 <-- getCulturalHeritageObjectsAuthoredBy test  -->
 Input: VIAF:100219162 (id di Plinius Secundus, Gaius)
-type: <cultural_objects.PrintedVolume object at 0x000002B41B4895A0>,
+
+type: <cultural_objects.PrintedVolume object at 0x12cc597f0>,
 id: 2,
 title: The History of Plants,
 date: 1497,
 owner: BUB,
 place: Bologna,
-authors: [<cultural_objects.Person object at 0x000002B41B48BFD0>, <cultural_objects.Person object at 0x000002B41B48B910>]
+authors: [<cultural_objects.Person object at 0x12cba2990>, <cultural_objects.Person object at 0x12d2386e0>]
 
-type: <cultural_objects.PrintedVolume object at 0x000002B41B48B550>,
+type: <cultural_objects.PrintedVolume object at 0x11c009880>,
 id: 4,
 title: The Natural History,
 date: 1519,
 owner: BUB,
 place: Bologna,
-authors: [<cultural_objects.Person object at 0x000002B41B48B310>]
+authors: [<cultural_objects.Person object at 0x12ccd4c20>]
 
 Numero di oggetti fatti da Plinius: 2
 
@@ -53,297 +54,297 @@ Numero di oggetti fatti da Plinius: 2
 <-- getActivitiesByResponsibleInstitution test  -->
 Input: couNCiL
 
-type: <cultural_objects.Acquisition object at 0x000002B41B488730>,
+type: <cultural_objects.Acquisition object at 0x12d23bec0>,
 institute: Council,
-object: <cultural_objects.NauticalChart object at 0x000002B41B4A0310>,
+object: <cultural_objects.NauticalChart object at 0x12d242690>,
 responsible person: Alice Liddell,
 tools: {'Nikon D7200 Nikor 50mm'},
 start: 2023-05-08,
 end: 2023-05-08
 
-type: <cultural_objects.Processing object at 0x000002B41B4A3A60>,
+type: <cultural_objects.Processing object at 0x12d243050>,
 institute: Council,
-object: <cultural_objects.NauticalChart object at 0x000002B41B4A31F0>,
+object: <cultural_objects.NauticalChart object at 0x12d242f90>,
 responsible person: Alice Liddell,
 tools: {'3DF Zephyr'},
 start: 2023-05-08,
 end: 2023-05-09
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4A1F60>,
+type: <cultural_objects.Acquisition object at 0x12d238c80>,
 institute: Council,
-object: <cultural_objects.PrintedVolume object at 0x000002B41B4A1CC0>,
+object: <cultural_objects.PrintedVolume object at 0x12d23bb00>,
 responsible person: Jane Doe,
 tools: set(),
 start: 2023-04-17,
 end: 2023-04-17
 
-type: <cultural_objects.Processing object at 0x000002B41B4A1BA0>,
+type: <cultural_objects.Processing object at 0x12d25e0f0>,
 institute: Council,
-object: <cultural_objects.PrintedVolume object at 0x000002B41B4A2B60>,
+object: <cultural_objects.PrintedVolume object at 0x12d2425d0>,
 responsible person: Jane Doe,
 tools: {'Metashape'},
 start: 2023-04-21,
 end: 2023-04-26
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4A3A00>,
+type: <cultural_objects.Acquisition object at 0x12d25eb10>,
 institute: Council,
-object: <cultural_objects.Herbarium object at 0x000002B41B4A0250>,
+object: <cultural_objects.Herbarium object at 0x12d25d1f0>,
 responsible person: Jane Doe,
 tools: set(),
 start: 2023-04-17,
 end: 2023-04-17
 
-type: <cultural_objects.Processing object at 0x000002B41B4A2BF0>,
+type: <cultural_objects.Processing object at 0x12d25e720>,
 institute: Council,
-object: <cultural_objects.Herbarium object at 0x000002B41B4A3730>,
+object: <cultural_objects.Herbarium object at 0x12d25ed20>,
 responsible person: Jane Doe,
 tools: {'3DF Zephyr'},
 start: 2023-04-21,
 end: 2023-04-26
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4A10F0>,
+type: <cultural_objects.Acquisition object at 0x12d25fce0>,
 institute: Council,
-object: <cultural_objects.PrintedVolume object at 0x000002B41B4A38B0>,
+object: <cultural_objects.PrintedVolume object at 0x12d25fe90>,
 responsible person: Jane Doe,
 tools: set(),
 start: 2023-04-17,
 end: 2023-04-17
 
-type: <cultural_objects.Processing object at 0x000002B41B4A3EB0>,
+type: <cultural_objects.Processing object at 0x12d25c170>,
 institute: Council,
-object: <cultural_objects.PrintedVolume object at 0x000002B41B4A3D30>,
+object: <cultural_objects.PrintedVolume object at 0x12d25e390>,
 responsible person: Jane Doe,
 tools: {'3DF Zephyr'},
 start: 2023-04-21,
 end: 2023-04-26
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4A3460>,
+type: <cultural_objects.Acquisition object at 0x12d25dcd0>,
 institute: Council,
-object: <cultural_objects.NauticalChart object at 0x000002B41B4A3220>,
+object: <cultural_objects.NauticalChart object at 0x12d25cd10>,
 responsible person: Alice Liddell,
 tools: {'Nikon D7200 Nikor 35mm'},
 start: 2023-03-04,
 end: 2023-03-04
 
-type: <cultural_objects.Processing object at 0x000002B41B4A0EB0>,
+type: <cultural_objects.Processing object at 0x11cc586b0>,
 institute: Council,
-object: <cultural_objects.NauticalChart object at 0x000002B41B4A01C0>,
+object: <cultural_objects.NauticalChart object at 0x104c4fb90>,
 responsible person: Alice Liddell,
 tools: {'3DF Zephyr'},
 start: 2023-04-05,
 end: 2023-04-07
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4A3E50>,
+type: <cultural_objects.Acquisition object at 0x11c0607d0>,
 institute: Council,
-object: <cultural_objects.NauticalChart object at 0x000002B41B4A3790>,
+object: <cultural_objects.NauticalChart object at 0x11c062f90>,
 responsible person: Alice Liddell,
 tools: {'Nikon D7200 Nikor 35mm'},
 start: 2023-03-04,
 end: 2023-03-04
 
-type: <cultural_objects.Processing object at 0x000002B41B4A2DA0>,
+type: <cultural_objects.Processing object at 0x12d23b680>,
 institute: Council,
-object: <cultural_objects.NauticalChart object at 0x000002B41B3F7490>,
+object: <cultural_objects.NauticalChart object at 0x12d25ce60>,
 responsible person: Alice Liddell,
 tools: {'Metashape'},
 start: 2023-04-05,
 end: 2023-04-07
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4A0400>,
+type: <cultural_objects.Acquisition object at 0x12d2432f0>,
 institute: Council,
-object: <cultural_objects.PrintedVolume object at 0x000002B41B3F76D0>,
+object: <cultural_objects.PrintedVolume object at 0x12d25c5c0>,
 responsible person: Alice Liddell,
 tools: {'Nikon D7200 Nikor 35mm'},
 start: 2023-03-04,
 end: 2023-03-04
 
-type: <cultural_objects.Processing object at 0x000002B41B3F6A40>,
+type: <cultural_objects.Processing object at 0x11d73b080>,
 institute: Council,
-object: <cultural_objects.PrintedVolume object at 0x000002B41B3F7AC0>,
+object: <cultural_objects.PrintedVolume object at 0x11ceca960>,
 responsible person: Alice Liddell,
 tools: {'3DF Zephyr'},
 start: 2023-04-05,
 end: 2023-04-07
 
-type: <cultural_objects.Acquisition object at 0x000002B41B3F71C0>,
+type: <cultural_objects.Acquisition object at 0x12d2429c0>,
 institute: Council,
-object: <cultural_objects.PrintedVolume object at 0x000002B41B3F7C70>,
+object: <cultural_objects.PrintedVolume object at 0x12d25ec90>,
 responsible person: Alice Liddell,
 tools: {'Nikon D7200 Nikor 35mm'},
 start: 2023-03-04,
 end: 2023-03-04
 
-type: <cultural_objects.Processing object at 0x000002B41B3F7040>,
+type: <cultural_objects.Processing object at 0x12d23bd70>,
 institute: Council,
-object: <cultural_objects.PrintedVolume object at 0x000002B41B3F6230>,
+object: <cultural_objects.PrintedVolume object at 0x12d1dbfb0>,
 responsible person: Alice Liddell,
 tools: {'3DF Zephyr'},
 start: 2023-04-05,
 end: 2023-04-07
 
-type: <cultural_objects.Acquisition object at 0x000002B41B3F6500>,
+type: <cultural_objects.Acquisition object at 0x12d25d340>,
 institute: Council,
-object: <cultural_objects.PrintedMaterial object at 0x000002B41B3F61A0>,
+object: <cultural_objects.PrintedMaterial object at 0x12d1db4a0>,
 responsible person: Alice Liddell,
 tools: {'Nikon D7200 Nikor 35mm'},
 start: 2023-03-04,
 end: 2023-03-04
 
-type: <cultural_objects.Processing object at 0x000002B41B3F5690>,
+type: <cultural_objects.Processing object at 0x12d25f9e0>,
 institute: Council,
-object: <cultural_objects.PrintedMaterial object at 0x000002B41B3F5C90>,
+object: <cultural_objects.PrintedMaterial object at 0x12d25fb60>,
 responsible person: Alice Liddell,
 tools: {'3DF Zephyr'},
 start: 2023-04-05,
 end: 2023-04-07
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4C2A70>,
+type: <cultural_objects.Acquisition object at 0x12d276690>,
 institute: Council,
-object: <cultural_objects.Painting object at 0x000002B41B4C0BB0>,
+object: <cultural_objects.Painting object at 0x12d276990>,
 responsible person: Alice Liddell,
 tools: {'Nikon D7200 Nikor 50mm'},
 start: 2023-03-24,
 end: 2023-03-24
 
-type: <cultural_objects.Processing object at 0x000002B41B4C0760>,
+type: <cultural_objects.Processing object at 0x12d275010>,
 institute: Council,
-object: <cultural_objects.Painting object at 0x000002B41B4C0610>,
+object: <cultural_objects.Painting object at 0x12d274d10>,
 responsible person: Alice Liddell,
 tools: {'3DF Zephyr'},
 start: 2023-03-28,
 end: 2023-03-29
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4C1AB0>,
+type: <cultural_objects.Acquisition object at 0x12d1dbef0>,
 institute: Council,
-object: <cultural_objects.PrintedMaterial object at 0x000002B41B4C0F40>,
+object: <cultural_objects.PrintedMaterial object at 0x12d276a20>,
 responsible person: None,
 tools: set(),
 start: 2023-03-04,
 end: 2023-03-04
 
-type: <cultural_objects.Processing object at 0x000002B41B4C0520>,
+type: <cultural_objects.Processing object at 0x12d241b20>,
 institute: Council,
-object: <cultural_objects.PrintedMaterial object at 0x000002B41B4C2B00>,
+object: <cultural_objects.PrintedMaterial object at 0x12d243290>,
 responsible person: Alice Liddell,
 tools: {'3DF Zephyr'},
 start: 2023-05-04,
 end: 2023-07-04
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4C1690>,
+type: <cultural_objects.Acquisition object at 0x12d23b230>,
 institute: Council,
-object: <cultural_objects.Map object at 0x000002B41B4C2D40>,
+object: <cultural_objects.Map object at 0x12d2777d0>,
 responsible person: Alice Liddell,
 tools: {'Nikon D7200 Nikor 50mm'},
 start: 2023-04-17,
 end: 2023-04-17
 
-type: <cultural_objects.Processing object at 0x000002B41B4C32B0>,
+type: <cultural_objects.Processing object at 0x12d1dbd70>,
 institute: Council,
-object: <cultural_objects.Map object at 0x000002B41B4C2590>,
+object: <cultural_objects.Map object at 0x12d275820>,
 responsible person: Alice Liddell,
 tools: {'3DF Zephyr'},
 start: 2023-03-05,
 end: 2023-05-05
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4C25F0>,
+type: <cultural_objects.Acquisition object at 0x12d23a2a0>,
 institute: Council,
-object: <cultural_objects.Map object at 0x000002B41B4C1EA0>,
+object: <cultural_objects.Map object at 0x12d276a50>,
 responsible person: Alice Liddell,
 tools: {'Nikon D7200 Nikor 50mm'},
 start: 2023-04-17,
 end: 2023-04-17
 
-type: <cultural_objects.Processing object at 0x000002B41B4C2080>,
+type: <cultural_objects.Processing object at 0x12d23bbc0>,
 institute: Council,
-object: <cultural_objects.Map object at 0x000002B41B4C3100>,
+object: <cultural_objects.Map object at 0x12d21ac30>,
 responsible person: Alice Liddell,
 tools: {'3DF Zephyr'},
 start: 2023-03-05,
 end: 2023-05-05
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4C3430>,
+type: <cultural_objects.Acquisition object at 0x12d274290>,
 institute: Council,
-object: <cultural_objects.Specimen object at 0x000002B41B4C35B0>,
+object: <cultural_objects.Specimen object at 0x12d21a690>,
 responsible person: Alice Liddell,
 tools: {'Nikon D7200 Nikor 50mm'},
 start: 2023-04-17,
 end: 2023-04-17
 
-type: <cultural_objects.Processing object at 0x000002B41B4C3B50>,
+type: <cultural_objects.Processing object at 0x12d25cfb0>,
 institute: Council,
-object: <cultural_objects.Specimen object at 0x000002B41B4C3A30>,
+object: <cultural_objects.Specimen object at 0x12d2748f0>,
 responsible person: Alice Liddell,
 tools: {'3DF Zephyr'},
 start: 2023-03-05,
 end: 2023-05-05
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4C3D00>,
+type: <cultural_objects.Acquisition object at 0x12d284110>,
 institute: Council,
-object: <cultural_objects.Specimen object at 0x000002B41B4C3FD0>,
+object: <cultural_objects.Specimen object at 0x12d2181a0>,
 responsible person: Jane Doe,
 tools: set(),
 start: 2023-04-17,
 end: 2023-04-17
 
-type: <cultural_objects.Processing object at 0x000002B41B4C3DF0>,
+type: <cultural_objects.Processing object at 0x12d274170>,
 institute: Council,
-object: <cultural_objects.Specimen object at 0x000002B41B4D05E0>,
+object: <cultural_objects.Specimen object at 0x12d1db260>,
 responsible person: Alice Liddell,
 tools: {'3DF Zephyr'},
 start: 2023-03-05,
 end: 2023-05-05
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4D06A0>,
+type: <cultural_objects.Acquisition object at 0x12d276060>,
 institute: Council,
-object: <cultural_objects.Specimen object at 0x000002B41B4D0D90>,
+object: <cultural_objects.Specimen object at 0x12d286150>,
 responsible person: Alice Liddell,
 tools: {'Nikon D7200 Nikor 50mm'},
 start: 2023-04-17,
 end: 2023-04-17
 
-type: <cultural_objects.Processing object at 0x000002B41B4D0FD0>,
+type: <cultural_objects.Processing object at 0x12d2766f0>,
 institute: Council,
-object: <cultural_objects.Specimen object at 0x000002B41B4D1150>,
+object: <cultural_objects.Specimen object at 0x12d2868a0>,
 responsible person: Alice Liddell,
 tools: {'3DF Zephyr'},
 start: 2023-03-05,
 end: 2023-05-05
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4D1450>,
+type: <cultural_objects.Acquisition object at 0x12d25f140>,
 institute: Council,
-object: <cultural_objects.ManuscriptPlate object at 0x000002B41B4D1C30>,
+object: <cultural_objects.ManuscriptPlate object at 0x12d286d50>,
 responsible person: Jane Doe,
 tools: set(),
 start: 2023-04-17,
 end: 2023-04-17
 
-type: <cultural_objects.Processing object at 0x000002B41B4D1330>,
+type: <cultural_objects.Processing object at 0x12d276ab0>,
 institute: Council,
-object: <cultural_objects.ManuscriptPlate object at 0x000002B41B4D1CF0>,
+object: <cultural_objects.ManuscriptPlate object at 0x12d287890>,
 responsible person: Alice Liddell,
 tools: {'3DF Zephyr'},
 start: 2023-03-05,
 end: 2023-05-05
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4D2F20>,
+type: <cultural_objects.Acquisition object at 0x12d21a300>,
 institute: Council,
-object: <cultural_objects.Model object at 0x000002B41B4D3C10>,
+object: <cultural_objects.Model object at 0x12d284c50>,
 responsible person: Hedy Lamarr,
 tools: {'Nikon D3300'},
 start: 2023-05-15,
 end: 2023-05-15
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4D3C70>,
+type: <cultural_objects.Acquisition object at 0x12d1dac30>,
 institute: Council,
-object: <cultural_objects.Specimen object at 0x000002B41B4D2A70>,
+object: <cultural_objects.Specimen object at 0x12d284590>,
 responsible person: Leonardo da Pisa,
 tools: {'Canon Eos 6D - Lente 24-70 F2.8 L'},
 start: 2023-05-22,
 end: 2023-05-22
 
-type: <cultural_objects.Processing object at 0x000002B41B4E89A0>,
+type: <cultural_objects.Processing object at 0x12d21a480>,
 institute: Council,
-object: <cultural_objects.Specimen object at 0x000002B41B4E8AF0>,
+object: <cultural_objects.Specimen object at 0x12d27af00>,
 responsible person: Leonardo da Pisa,
 tools: {'3DF Zephyr'},
 start: 2023-05-15,
@@ -356,65 +357,65 @@ Numero di attività fatte dall'istituto Council: 37
 <-- getActivitiesByResponsiblePerson test  -->
 Input: DOE
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4C0E20>,
+type: <cultural_objects.Acquisition object at 0x12d2876e0>,
 institute: Council,
-object: <cultural_objects.PrintedVolume object at 0x000002B41B4C3130>,
+object: <cultural_objects.PrintedVolume object at 0x12d287410>,
 responsible person: Jane Doe,
 tools: set(),
 start: 2023-04-17,
 end: 2023-04-17
 
-type: <cultural_objects.Processing object at 0x000002B41B4C28F0>,
+type: <cultural_objects.Processing object at 0x12d284e30>,
 institute: Council,
-object: <cultural_objects.PrintedVolume object at 0x000002B41B4C2FE0>,
+object: <cultural_objects.PrintedVolume object at 0x12d2760c0>,
 responsible person: Jane Doe,
 tools: {'Metashape'},
 start: 2023-04-21,
 end: 2023-04-26
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4C1210>,
+type: <cultural_objects.Acquisition object at 0x12d286f90>,
 institute: Council,
-object: <cultural_objects.Herbarium object at 0x000002B41B4C1B70>,
+object: <cultural_objects.Herbarium object at 0x12d2766c0>,
 responsible person: Jane Doe,
 tools: set(),
 start: 2023-04-17,
 end: 2023-04-17
 
-type: <cultural_objects.Processing object at 0x000002B41B4C1990>,
+type: <cultural_objects.Processing object at 0x12d277470>,
 institute: Council,
-object: <cultural_objects.Herbarium object at 0x000002B41B4C1CF0>,
+object: <cultural_objects.Herbarium object at 0x12d275d00>,
 responsible person: Jane Doe,
 tools: {'3DF Zephyr'},
 start: 2023-04-21,
 end: 2023-04-26
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4C2EF0>,
+type: <cultural_objects.Acquisition object at 0x12d287ce0>,
 institute: Council,
-object: <cultural_objects.PrintedVolume object at 0x000002B41B4C3220>,
+object: <cultural_objects.PrintedVolume object at 0x12d277c80>,
 responsible person: Jane Doe,
 tools: set(),
 start: 2023-04-17,
 end: 2023-04-17
 
-type: <cultural_objects.Processing object at 0x000002B41B4C3F40>,
+type: <cultural_objects.Processing object at 0x12d1db9b0>,
 institute: Council,
-object: <cultural_objects.PrintedVolume object at 0x000002B41B4C3E80>,
+object: <cultural_objects.PrintedVolume object at 0x12d1dafc0>,
 responsible person: Jane Doe,
 tools: {'3DF Zephyr'},
 start: 2023-04-21,
 end: 2023-04-26
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4EA140>,
+type: <cultural_objects.Acquisition object at 0x12d284d40>,
 institute: Council,
-object: <cultural_objects.Specimen object at 0x000002B41B4EA2C0>,
+object: <cultural_objects.Specimen object at 0x12d279190>,
 responsible person: Jane Doe,
 tools: set(),
 start: 2023-04-17,
 end: 2023-04-17
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4EBFD0>,
+type: <cultural_objects.Acquisition object at 0x12d2866c0>,
 institute: Council,
-object: <cultural_objects.ManuscriptPlate object at 0x000002B41B4EBD60>,
+object: <cultural_objects.ManuscriptPlate object at 0x12d28e210>,
 responsible person: Jane Doe,
 tools: set(),
 start: 2023-04-17,
@@ -427,81 +428,81 @@ Numero di attività svolte da Doe: 8
 <-- getActivitiesUsingTool test  -->
 Input: panasOnIC
 
-type: <cultural_objects.Acquisition object at 0x000002B41B3F62C0>,
+type: <cultural_objects.Acquisition object at 0x12d28cec0>,
 institute: Philology,
-object: <cultural_objects.ManuscriptVolume object at 0x000002B41B3F7FD0>,
+object: <cultural_objects.ManuscriptVolume object at 0x12d28d370>,
 responsible person: Grace Hopper,
 tools: {'Panasonic DMC-LX100'},
 start: 2023-05-29,
 end: 2023-05-29
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4F9B70>,
+type: <cultural_objects.Acquisition object at 0x12d28cd70>,
 institute: Philology,
-object: <cultural_objects.Specimen object at 0x000002B41B4F8BB0>,
+object: <cultural_objects.Specimen object at 0x12d28f890>,
 responsible person: Grace Hopper,
 tools: {'Panasonic DMC-LX100'},
 start: 2023-05-15,
 end: 2023-05-15
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4FA050>,
+type: <cultural_objects.Acquisition object at 0x12d25f860>,
 institute: Philology,
-object: <cultural_objects.Specimen object at 0x000002B41B4FA230>,
+object: <cultural_objects.Specimen object at 0x12d287ec0>,
 responsible person: Grace Hopper,
 tools: {'Panasonic DMC-LX100'},
 start: 2023-05-15,
 end: 2023-05-15
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4FA800>,
+type: <cultural_objects.Acquisition object at 0x12d240350>,
 institute: Philology,
-object: <cultural_objects.Specimen object at 0x000002B41B4FAD10>,
+object: <cultural_objects.Specimen object at 0x12d2863c0>,
 responsible person: Grace Hopper,
 tools: {'Panasonic DMC-LX100'},
 start: 2023-05-15,
 end: 2023-05-15
 
-type: <cultural_objects.Acquisition object at 0x000002B41B4F8DF0>,
+type: <cultural_objects.Acquisition object at 0x12d28d100>,
 institute: Philology,
-object: <cultural_objects.PrintedMaterial object at 0x000002B41B4FBC10>,
+object: <cultural_objects.PrintedMaterial object at 0x12d296cc0>,
 responsible person: Grace Hopper,
 tools: {'Panasonic DMC-LX100'},
 start: 2023-05-15,
 end: 2023-05-15
 
-type: <cultural_objects.Acquisition object at 0x000002B41B504B80>,
+type: <cultural_objects.Acquisition object at 0x12d297a40>,
 institute: Philology,
-object: <cultural_objects.PrintedMaterial object at 0x000002B41B504E80>,
+object: <cultural_objects.PrintedMaterial object at 0x12d27a2a0>,
 responsible person: Grace Hopper,
 tools: {'Panasonic DMC-LX100'},
 start: 2023-05-22,
 end: 2023-05-22
 
-type: <cultural_objects.Acquisition object at 0x000002B41B504EB0>,
+type: <cultural_objects.Acquisition object at 0x12d25c0e0>,
 institute: Philology,
-object: <cultural_objects.ManuscriptPlate object at 0x000002B41B5051B0>,
+object: <cultural_objects.ManuscriptPlate object at 0x12d2978f0>,
 responsible person: Grace Hopper,
 tools: {'Panasonic DMC-LX100'},
 start: 2023-04-17,
 end: 2023-04-17
 
-type: <cultural_objects.Acquisition object at 0x000002B41B505780>,
+type: <cultural_objects.Acquisition object at 0x12d294aa0>,
 institute: Philology,
-object: <cultural_objects.PrintedVolume object at 0x000002B41B505810>,
+object: <cultural_objects.PrintedVolume object at 0x12d274f80>,
 responsible person: Grace Hopper,
 tools: {'Panasonic DMC-LX100'},
 start: 2023-05-15,
 end: 2023-05-15
 
-type: <cultural_objects.Acquisition object at 0x000002B41B5062C0>,
+type: <cultural_objects.Acquisition object at 0x12d2963f0>,
 institute: Philology,
-object: <cultural_objects.ManuscriptPlate object at 0x000002B41B506830>,
+object: <cultural_objects.ManuscriptPlate object at 0x12d294a40>,
 responsible person: Grace Hopper,
 tools: {'Panasonic DMC-LX100'},
 start: 2023-05-15,
 end: 2023-05-15
 
-type: <cultural_objects.Acquisition object at 0x000002B41B5073D0>,
+type: <cultural_objects.Acquisition object at 0x12d296f00>,
 institute: Philology,
-object: <cultural_objects.ManuscriptPlate object at 0x000002B41B5076D0>,
+object: <cultural_objects.ManuscriptPlate object at 0x12d29fc80>,
 responsible person: Grace Hopper,
 tools: {'Panasonic DMC-LX100'},
 start: 2023-05-22,
@@ -514,43 +515,43 @@ Numero di attività realizzate con Panasonic: 10
 <-- getActivitiesStartedAfter test  -->
 Input: 2023-11-15
 
-type: <cultural_objects.Processing object at 0x000002B41B514D60>,
+type: <cultural_objects.Processing object at 0x12d274320>,
 institute: Philology,
-object: <cultural_objects.PrintedMaterial object at 0x000002B41B514EB0>,
+object: <cultural_objects.PrintedMaterial object at 0x12d25e960>,
 responsible person: Grace Hopper,
 tools: {'3DF Zephyr'},
 start: 2023-12-05,
 end: 2023-12-05
 
-type: <cultural_objects.Exporting object at 0x000002B41B514E80>,
+type: <cultural_objects.Exporting object at 0x12d2972f0>,
 institute: Philology,
-object: <cultural_objects.ManuscriptPlate object at 0x000002B41B5150F0>,
+object: <cultural_objects.ManuscriptPlate object at 0x12d21a840>,
 responsible person: Grace Hopper,
 tools: {'Blender'},
 start: 2023-12-10,
 end: 2023-12-10
 
-type: <cultural_objects.Optimising object at 0x000002B41B514E20>,
+type: <cultural_objects.Optimising object at 0x12d274b90>,
 institute: Philology,
-object: <cultural_objects.ManuscriptPlate object at 0x000002B41B514F70>,
+object: <cultural_objects.ManuscriptPlate object at 0x12d29e8d0>,
 responsible person: Grace Hopper,
-tools: {'Instant Meshes', 'Gimp ', '3DFZephyr'},
+tools: {'Gimp ', '3DFZephyr', 'Instant Meshes'},
 start: 2023-12-10,
 end: 2023-12-10
 
-type: <cultural_objects.Exporting object at 0x000002B41B515930>,
+type: <cultural_objects.Exporting object at 0x12d29d220>,
 institute: Philology,
-object: <cultural_objects.PrintedVolume object at 0x000002B41B516EC0>,
+object: <cultural_objects.PrintedVolume object at 0x12d275be0>,
 responsible person: Grace Hopper,
 tools: {'Blender'},
 start: 2023-12-09,
 end: 2023-12-09
 
-type: <cultural_objects.Optimising object at 0x000002B41B516500>,
+type: <cultural_objects.Optimising object at 0x12d2ae1b0>,
 institute: Philology,
-object: <cultural_objects.PrintedVolume object at 0x000002B41B515B70>,
+object: <cultural_objects.PrintedVolume object at 0x12d2ae330>,
 responsible person: Grace Hopper,
-tools: {'Instant Meshes', 'Gimp ', '3DFZephyr'},
+tools: {'Gimp ', '3DFZephyr', 'Instant Meshes'},
 start: 2023-12-09,
 end: 2023-12-09
 
@@ -570,7 +571,7 @@ Input: SCANNer
 
 technique: Structured-light 3D scanner,
 institute: Heritage,
-object: <cultural_objects.Specimen object at 0x000002B41B514820>,
+object: <cultural_objects.Specimen object at 0x12d2ae0f0>,
 responsible person: Ada Lovelace,
 tools: {'Artec EVA'},
 start: 2023-03-04,
@@ -578,7 +579,7 @@ end: 2023-03-04
 
 technique: Structured-light 3D scanner,
 institute: Heritage,
-object: <cultural_objects.Specimen object at 0x000002B41B522AD0>,
+object: <cultural_objects.Specimen object at 0x12d28a150>,
 responsible person: Ada Lovelace,
 tools: {'Artec EVA'},
 start: 2023-03-04,
@@ -586,7 +587,7 @@ end: 2023-03-04
 
 technique: Structured-light 3D scanner,
 institute: Engineering,
-object: <cultural_objects.Specimen object at 0x000002B41B523C40>,
+object: <cultural_objects.Specimen object at 0x12d2885c0>,
 responsible person: Grazia Deledda,
 tools: {'Artec EVA'},
 start: 2023-05-29,
@@ -606,54 +607,54 @@ Numero di attività fatte sugli oggetti fatti da Discorides: 0
 <-- getObjectsHandledByResponsiblePerson test  -->
 Input: jAnE
 
-type: <cultural_objects.PrintedVolume object at 0x000002B41B3F79A0>,
+type: <cultural_objects.PrintedVolume object at 0x12d27a510>,
 id: 2,
 title: The History of Plants,
 date: 1497,
 owner: BUB,
 place: Bologna,
-authors: [<cultural_objects.Person object at 0x000002B41B4FA860>, <cultural_objects.Person object at 0x000002B41B4FAE30>]
+authors: [<cultural_objects.Person object at 0x12d240b60>, <cultural_objects.Person object at 0x12d243950>]
 
-type: <cultural_objects.Herbarium object at 0x000002B41B521900>,
+type: <cultural_objects.Herbarium object at 0x12d242750>,
 id: 3,
 title: On Medical Material,
 date: 1523,
 owner: BUB,
 place: Bologna,
-authors: [<cultural_objects.Person object at 0x000002B41B5224A0>]
+authors: [<cultural_objects.Person object at 0x12d28a4e0>]
 
-type: <cultural_objects.PrintedVolume object at 0x000002B41B523AF0>,
+type: <cultural_objects.PrintedVolume object at 0x12d279850>,
 id: 4,
 title: The Natural History,
 date: 1519,
 owner: BUB,
 place: Bologna,
-authors: [<cultural_objects.Person object at 0x000002B41B521510>]
+authors: [<cultural_objects.Person object at 0x12d2893a0>]
 
-type: <cultural_objects.Specimen object at 0x000002B41B4E8D00>,
+type: <cultural_objects.Specimen object at 0x12d2b7da0>,
 id: 21,
 title: Mountain everlasting,
 date: 1500-1599,
 owner: Orto Botanico ed Herbarium di Bologna,
 place: Bologna,
-authors: [<cultural_objects.Person object at 0x000002B41B4EA260>]
+authors: [<cultural_objects.Person object at 0x12d2b5ee0>]
 
-type: <cultural_objects.ManuscriptPlate object at 0x000002B41B532350>,
+type: <cultural_objects.ManuscriptPlate object at 0x12d275cd0>,
 id: 25,
 title: Chick in an eggshell,
 date: 1500-1599,
 owner: BUB,
 place: Bologna,
-authors: [<cultural_objects.Person object at 0x000002B41B531E70>]
+authors: [<cultural_objects.Person object at 0x12d276ae0>]
 
-Numero di oggetti gestiti da Jane Doe: 5
+Numero di oggetti gestiti da Jane: 5
 
 ----------------------------------------------------------------------------------
 
 <-- getObjectsHandledByResponsibleInstitution test  -->
 Input: heritAGE
 
-type: <cultural_objects.Specimen object at 0x000002B41B4E9CC0>,
+type: <cultural_objects.Specimen object at 0x12d2bff20>,
 id: 10,
 title: Jaguar (Linnaeus, 1758),
 date: 1758,
@@ -661,7 +662,7 @@ owner: Sistema Museale di Ateneo di Bologna,
 place: Bologna,
 authors: []
 
-type: <cultural_objects.Specimen object at 0x000002B41B537880>,
+type: <cultural_objects.Specimen object at 0x12d2c7230>,
 id: 28,
 title: Sea coconut,
 date: 1500-1599,
@@ -669,13 +670,13 @@ owner: Museo di Palazzo Poggi,
 place: Bologna,
 authors: []
 
-type: <cultural_objects.Model object at 0x000002B41B537D60>,
+type: <cultural_objects.Model object at 0x12d2c7bf0>,
 id: 29,
 title: Basilisk,
 date: 1600-1699,
 owner: Museo di Storia Naturale di Verona,
 place: Verona,
-authors: [<cultural_objects.Person object at 0x000002B41B537760>]
+authors: [<cultural_objects.Person object at 0x12d2c7920>]
 
 Numero di oggetti dell'istituto Heritage: 3
 
@@ -684,16 +685,16 @@ Numero di oggetti dell'istituto Heritage: 3
 <-- getAuthorsOfObjectsAcquiredInTimeFrame test  -->
 Input: 2023-05, 2023-06
 
-<cultural_objects.Person object at 0x000002B41B5176D0>, id: ULAN:500114874, nome: Benincasa, Grazioso
-<cultural_objects.Person object at 0x000002B41B5379A0>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
-<cultural_objects.Person object at 0x000002B41B523400>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
-<cultural_objects.Person object at 0x000002B41B3F60E0>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
-<cultural_objects.Person object at 0x000002B41B53CD00>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
-<cultural_objects.Person object at 0x000002B41B53E320>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
-<cultural_objects.Person object at 0x000002B41B53DF00>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
-<cultural_objects.Person object at 0x000002B41B5403A0>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
-<cultural_objects.Person object at 0x000002B41B540D30>, id: VIAF:263904234, nome: Riviera, Tarsizio
-<cultural_objects.Person object at 0x000002B41B540D90>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
-<cultural_objects.Person object at 0x000002B41B5423B0>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
+<cultural_objects.Person object at 0x12d2744d0>, id: ULAN:500114874, nome: Benincasa, Grazioso
+<cultural_objects.Person object at 0x12d2b9b20>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
+<cultural_objects.Person object at 0x12d2bbaa0>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
+<cultural_objects.Person object at 0x12d2b7350>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
+<cultural_objects.Person object at 0x12d2c5fa0>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
+<cultural_objects.Person object at 0x12d2799d0>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
+<cultural_objects.Person object at 0x12d2ca300>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
+<cultural_objects.Person object at 0x12d2cbef0>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
+<cultural_objects.Person object at 0x12d2cb650>, id: VIAF:263904234, nome: Riviera, Tarsizio
+<cultural_objects.Person object at 0x12d2cd760>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
+<cultural_objects.Person object at 0x12d2ce120>, id: VIAF:100190422, nome: Aldrovandi, Ulisse
 
 Numero di autori di oggetti acquisiti tra 2023-05 e 2023-06: 11

@@ -62,7 +62,7 @@ class BasicMashup(object):
                 row = entity_dataframe.loc[0]
                 object_title = row["title"]
                 if row["date"] != "" and not pd.isna(row["date"]):
-                    object_date = row["date"]
+                    object_date = str(row["date"])
                 else:
                     object_date = None
                 object_authors = list_of_authors

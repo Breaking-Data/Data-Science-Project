@@ -60,7 +60,7 @@ class BasicMashup(object):
                     list_of_authors.append(author)
 
                 row = entity_dataframe.loc[0]
-                object_title = row["title"]
+                object_title = row["title"].strip()
                 if row["date"] != "" and not pd.isna(row["date"]):
                     object_date = str(row["date"])
                 else:
